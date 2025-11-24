@@ -6,13 +6,17 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
   --font-hand: var(--font-hand);
 
+  --color-dusty-rose: #E8D5D5;
+  --color-soft-blush: #F5EDED;
+  --color-slate-blue: #4A5F7A;
+  --color-deep-slate: #3D4F5F;
   --color-terracotta: #F9A28A;
-  --color-sage: #A8B5A2;
+  --color-sage: #7A8F7E;
   --color-cream: #FDF8F0;
   --color-lavender: #D9C8E8;
   --color-mustard: #E8B923;
@@ -54,92 +58,102 @@
 
 :root {
   --radius: 0.625rem;
-  
-  /* Custom Palette */
+
+  /* Custom Palette - Dusty Rose & Slate Theme */
+  --dusty-rose: #E8D5D5;
+  --soft-blush: #F5EDED;
+  --slate-blue: #4A5F7A;
+  --deep-slate: #3D4F5F;
   --terracotta: #F9A28A;
-  --sage: #A8B5A2;
+  --sage: #7A8F7E;
+  /* Deepened for better contrast */
   --cream: #FDF8F0;
   --lavender: #D9C8E8;
   --mustard: #E8B923;
-  
+
   /* Semantic Colors */
-  --background: var(--cream);
-  --foreground: #2D2D2D; /* Soft black */
-  
-  --card: #FFFFFF;
+  --background: var(--dusty-rose);
+  --foreground: #2D2D2D;
+  /* Charcoal - excellent contrast on dusty rose */
+
+  --card: var(--soft-blush);
   --card-foreground: #2D2D2D;
-  
-  --popover: #FFFFFF;
+
+  --popover: var(--soft-blush);
   --popover-foreground: #2D2D2D;
-  
+
   --primary: var(--terracotta);
   --primary-foreground: #FFFFFF;
-  
-  --secondary: var(--sage);
+
+  --secondary: var(--slate-blue);
   --secondary-foreground: #FFFFFF;
-  
-  --muted: var(--lavender);
-  --muted-foreground: #666666;
-  
-  --accent: var(--mustard);
-  --accent-foreground: #2D2D2D;
-  
+
+  --muted: #C5B5B5;
+  /* Muted rose-gray */
+  --muted-foreground: #5A5A5A;
+  /* Darker for better readability */
+
+  --accent: var(--slate-blue);
+  --accent-foreground: #FFFFFF;
+
   --destructive: oklch(0.577 0.245 27.325);
-  
-  --border: #E5E5E5;
-  --input: #E5E5E5;
-  --ring: var(--terracotta);
-  
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  
-  --sidebar: var(--cream);
+
+  --border: #D4C4C4;
+  /* Rose-tinted border */
+  --input: #D4C4C4;
+  --ring: var(--slate-blue);
+
+  --chart-1: var(--terracotta);
+  --chart-2: var(--slate-blue);
+  --chart-3: var(--sage);
+  --chart-4: var(--mustard);
+  --chart-5: var(--lavender);
+
+  --sidebar: var(--dusty-rose);
   --sidebar-foreground: #2D2D2D;
   --sidebar-primary: var(--terracotta);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--sage);
+  --sidebar-accent: var(--slate-blue);
   --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #E5E5E5;
-  --sidebar-ring: var(--terracotta);
+  --sidebar-border: #D4C4C4;
+  --sidebar-ring: var(--slate-blue);
 }
 
 .dark {
-  --background: #1A1A1A; /* Warm dark gray */
+  --background: #1A1A1A;
+  /* Warm dark gray */
   --foreground: #FDF8F0;
-  
+
   --card: #2D2D2D;
   --card-foreground: #FDF8F0;
-  
+
   --popover: #2D2D2D;
   --popover-foreground: #FDF8F0;
-  
+
   --primary: var(--terracotta);
   --primary-foreground: #FFFFFF;
-  
+
   --secondary: var(--sage);
   --secondary-foreground: #FFFFFF;
-  
+
   --muted: #4A4A4A;
   --muted-foreground: #A1A1A1;
-  
+
   --accent: var(--mustard);
   --accent-foreground: #2D2D2D;
-  
+
   --destructive: oklch(0.704 0.191 22.216);
-  
+
   --border: #444444;
   --input: #444444;
   --ring: var(--terracotta);
-  
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  
+
   --sidebar: #1A1A1A;
   --sidebar-foreground: #FDF8F0;
   --sidebar-primary: var(--terracotta);
@@ -154,6 +168,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

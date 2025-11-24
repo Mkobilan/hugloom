@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,8 +34,8 @@ export const CalendarView = ({ events }: { events: any[] }) => {
                 </div>
 
                 <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
-                        <div key={day} className="text-xs text-muted-foreground font-medium">{day}</div>
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                        <div key={`day-header-${index}`} className="text-xs text-muted-foreground font-medium">{day}</div>
                     ))}
                 </div>
 
@@ -68,25 +69,52 @@ export const CalendarView = ({ events }: { events: any[] }) => {
                 </h3>
                 <div className="space-y-3">
                     {selectedEvents.length > 0 ? (
-                        selectedEvents.map(event => (
-                            <div key={event.id} className="flex items-center gap-3 p-3 bg-cream/50 rounded-xl border border-border/50">
-                                <div className="w-1.5 h-10 rounded-full bg-sage" />
-                                <div>
-                                    <h4 className="font-bold text-sm text-foreground">{event.title}</h4>
-                                    <p className="text-xs text-muted-foreground">
-                                        {format(new Date(event.start_time), 'h:mm a')}
-                                    </p>
+                        selectedEvents.map(event => {
+                            // Get color based on task category
+                            const getEventColor = (category: string) => {
+                                switch (category) {
+                                    case 'medication': return 'bg-terracotta';
+                                    case 'personal_care': return 'bg-sage';
+                                    case 'appointment': return 'bg-slate-blue';
+                                    case 'task': return 'bg-mustard';
+                                    default: return 'bg-sage';
+                                }
+                            };
+
+                            const getCategoryIcon = (category: string) => {
+                                switch (category) {
+                                    case 'medication': return '💊';
+                                    case 'personal_care': return '🛁';
+                                    case 'appointment': return '📅';
+                                    case 'task': return '✅';
+                                    default: return '📋';
+                                }
+                            };
+
+                            return (
+                                <div key={event.id} className="flex items-center gap-3 p-3 bg-cream/50 rounded-xl border border-border/50">
+                                    <div className={cn("w-1.5 h-10 rounded-full", getEventColor(event.task_category))} />
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm">{getCategoryIcon(event.task_category)}</span>
+                                            <h4 className="font-bold text-sm text-foreground">{event.title}</h4>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                            {format(new Date(event.start_time), 'h:mm a')}
+                                            {event.description && ` • ${event.description}`}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <div className="text-center py-6">
                             <p className="text-sm text-muted-foreground">No events for this day.</p>
                         </div>
                     )}
-                    <button className="w-full py-3 mt-2 text-sm text-terracotta font-bold border border-terracotta/20 rounded-xl hover:bg-terracotta/5 transition-colors flex items-center justify-center gap-2">
+                    <Link href="/meds" className="w-full py-3 mt-2 text-sm text-terracotta font-bold border border-terracotta/20 rounded-xl hover:bg-terracotta/5 transition-colors flex items-center justify-center gap-2">
                         <span>+ Add Event</span>
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

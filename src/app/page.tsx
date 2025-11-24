@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Calendar, MessageCircle, MapPin, Smile, Heart } from 'lucide-react';
@@ -49,22 +49,48 @@ const FeedItem = ({ author, content, time }: any) => (
 
 export default function Home() {
   const supabase = createClient();
+  const [username, setUsername] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkSessionAndLoadProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         window.location.href = '/login';
+        return;
       }
+
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username, full_name')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile) {
+        setUsername(profile.username || profile.full_name || 'there');
+      } else {
+        setUsername('there');
+      }
+      setLoading(false);
     };
-    checkSession();
+    checkSessionAndLoadProfile();
   }, []);
+
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <AppLayout>
       {/* Greeting Section */}
       <section className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-700">
         <h2 className="text-2xl font-heading font-bold text-terracotta mb-2">
-          Good morning, Sarah ☕
+          {loading ? 'Loading...' : `${getGreeting()}, ${username} ☕`}
         </h2>
         <p className="text-muted-foreground font-medium">
           14 caregivers have sent you hugs today.

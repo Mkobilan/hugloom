@@ -6,22 +6,22 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 
-const MenuItem = ({ 
-    icon: Icon, 
-    label, 
-    href, 
-    color = "text-foreground", 
-    onClick 
-}: { 
-    icon: any, 
-    label: string, 
-    href?: string, 
-    color?: string, 
-    onClick?: () => void 
+const MenuItem = ({
+    icon: Icon,
+    label,
+    href,
+    color = "text-foreground",
+    onClick
+}: {
+    icon: any,
+    label: string,
+    href?: string,
+    color?: string,
+    onClick?: () => void
 }) => {
     if (onClick) {
         return (
-            <button 
+            <button
                 onClick={onClick}
                 className="w-full text-left"
             >
@@ -51,13 +51,24 @@ export default function MorePage() {
     const router = useRouter()
     const supabase = createClient()
     const [user, setUser] = useState<any>(null)
+    const [profile, setProfile] = useState<any>(null)
 
     useEffect(() => {
-        const getUser = async () => {
+        const getUserAndProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
+
+            if (user) {
+                const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single()
+
+                setProfile(profileData)
+            }
         }
-        getUser()
+        getUserAndProfile()
     }, [])
 
     const handleSignOut = async () => {
@@ -80,14 +91,25 @@ export default function MorePage() {
                 <h1 className="text-2xl font-heading font-bold text-terracotta mb-6">Menu</h1>
 
                 <div className="mb-8 flex items-center gap-4 p-4 bg-terracotta/10 rounded-2xl">
-                    <div className="w-16 h-16 rounded-full bg-terracotta/20 flex items-center justify-center text-terracotta font-bold text-2xl">
-                        {user?.email?.[0]?.toUpperCase() || 'U'}
+                    <div className="w-16 h-16 rounded-full bg-terracotta/20 flex items-center justify-center text-terracotta font-bold text-2xl overflow-hidden">
+                        {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            profile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'
+                        )}
                     </div>
-                    <div>
-                        <h2 className="font-bold text-lg">{user?.email || 'User'}</h2>
+                    <div className="flex-1">
+                        <h2 className="font-bold text-lg">
+                            {profile?.username || profile?.full_name || user?.email || 'User'}
+                        </h2>
                         <p className="text-sm text-muted-foreground">
-                            {user?.user_metadata?.role || 'Member'} • {user?.user_metadata?.location || 'Location'}
+                            {profile?.role || 'Member'} {profile?.location ? `• ${profile.location}` : ''}
                         </p>
+                        {!profile?.username && (
+                            <p className="text-xs text-terracotta mt-1">
+                                👋 Complete your profile to get started!
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -97,11 +119,11 @@ export default function MorePage() {
                     <MenuItem icon={Shield} label="Local Help" href="/help" />
                     <MenuItem icon={Settings} label="Settings" href="/settings" />
                     <MenuItem icon={HelpCircle} label="Help & Support" href="/support" />
-                    <MenuItem 
-                        icon={LogOut} 
-                        label="Sign Out" 
-                        color="text-red-500" 
-                        onClick={handleSignOut} 
+                    <MenuItem
+                        icon={LogOut}
+                        label="Sign Out"
+                        color="text-red-500"
+                        onClick={handleSignOut}
                     />
                 </div>
             </div>
