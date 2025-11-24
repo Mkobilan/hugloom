@@ -1,19 +1,79 @@
+"use client";
 import { AppLayout } from '@/components/layout/AppLayout'
 import { User, Settings, HelpCircle, LogOut, HeartHandshake, Shield } from 'lucide-react'
-import { Link } from 'solito/link'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
-const MenuItem = ({ icon: Icon, label, href, color = "text-foreground" }: any) => (
-    <Link href={href}>
-        <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border/50 hover:bg-cream/50 transition-colors mb-3">
-            <div className={`p-2 rounded-full bg-cream ${color}`}>
-                <Icon className="w-5 h-5" />
+const MenuItem = ({ 
+    icon: Icon, 
+    label, 
+    href, 
+    color = "text-foreground", 
+    onClick 
+}: { 
+    icon: any, 
+    label: string, 
+    href?: string, 
+    color?: string, 
+    onClick?: () => void 
+}) => {
+    if (onClick) {
+        return (
+            <button 
+                onClick={onClick}
+                className="w-full text-left"
+            >
+                <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border/50 hover:bg-cream/50 transition-colors mb-3">
+                    <div className={`p-2 rounded-full bg-cream ${color}`}>
+                        <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="font-medium text-foreground flex-1">{label}</span>
+                </div>
+            </button>
+        )
+    }
+
+    return (
+        <Link href={href!}>
+            <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border/50 hover:bg-cream/50 transition-colors mb-3">
+                <div className={`p-2 rounded-full bg-cream ${color}`}>
+                    <Icon className="w-5 h-5" />
+                </div>
+                <span className="font-medium text-foreground flex-1">{label}</span>
             </div>
-            <span className="font-medium text-foreground flex-1">{label}</span>
-        </div>
-    </Link>
-)
+        </Link>
+    )
+}
 
 export default function MorePage() {
+    const router = useRouter()
+    const supabase = createClient()
+    const [user, setUser] = useState<any>(null)
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
+        }
+        getUser()
+    }, [])
+
+    const handleSignOut = async () => {
+        try {
+            const { error } = await supabase.auth.signOut()
+            if (error) {
+                console.error('Error signing out:', error.message)
+                return
+            }
+            // Redirect to login page after successful sign out
+            router.push('/login')
+        } catch (error) {
+            console.error('Error signing out:', error)
+        }
+    }
+
     return (
         <AppLayout>
             <div className="max-w-2xl mx-auto">
@@ -21,11 +81,13 @@ export default function MorePage() {
 
                 <div className="mb-8 flex items-center gap-4 p-4 bg-terracotta/10 rounded-2xl">
                     <div className="w-16 h-16 rounded-full bg-terracotta/20 flex items-center justify-center text-terracotta font-bold text-2xl">
-                        S
+                        {user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg">Sarah Jenkins</h2>
-                        <p className="text-sm text-muted-foreground">Caregiver for Mom • NYC</p>
+                        <h2 className="font-bold text-lg">{user?.email || 'User'}</h2>
+                        <p className="text-sm text-muted-foreground">
+                            {user?.user_metadata?.role || 'Member'} • {user?.user_metadata?.location || 'Location'}
+                        </p>
                     </div>
                 </div>
 
@@ -34,14 +96,13 @@ export default function MorePage() {
                     <MenuItem icon={HeartHandshake} label="My Care Circles" href="/circles" />
                     <MenuItem icon={Shield} label="Local Help" href="/help" />
                     <MenuItem icon={Settings} label="Settings" href="/settings" />
-                    <MenuItem icon={HelpCircle} label="Support & Resources" href="/support" />
-
-                    <button className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-red-100 hover:bg-red-50 transition-colors mt-6 text-red-500">
-                        <div className="p-2 rounded-full bg-red-100">
-                            <LogOut className="w-5 h-5" />
-                        </div>
-                        <span className="font-medium flex-1 text-left">Sign Out</span>
-                    </button>
+                    <MenuItem icon={HelpCircle} label="Help & Support" href="/support" />
+                    <MenuItem 
+                        icon={LogOut} 
+                        label="Sign Out" 
+                        color="text-red-500" 
+                        onClick={handleSignOut} 
+                    />
                 </div>
             </div>
         </AppLayout>

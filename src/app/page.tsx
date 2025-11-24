@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Calendar, MessageCircle, MapPin, Smile, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
+import { redirect } from 'next/navigation'
 import { Link } from 'solito/link';
 
 const DashboardTile = ({ icon: Icon, title, subtitle, color, href }: any) => (
@@ -46,6 +48,17 @@ const FeedItem = ({ author, content, time }: any) => (
 );
 
 export default function Home() {
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = '/login';
+      }
+    };
+    checkSession();
+  }, []);
   return (
     <AppLayout>
       {/* Greeting Section */}

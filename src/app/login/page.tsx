@@ -1,30 +1,41 @@
+// src/app/login/page.tsx
 "use client";
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Flame } from 'lucide-react';
+import { Flame, Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState({ text: '', isError: false });
     const supabase = createClient();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-                emailRedirectTo: `${location.origin}/auth/callback`,
-            },
-        });
+        setMessage({ text: '', isError: false });
+        
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-        if (error) {
-            setMessage(error.message);
-        } else {
-            setMessage('Check your email for the login link!');
+            if (error) throw error;
+            
+            // Redirect to root after successful login
+            window.location.href = '/';
+        } catch (error: any) {
+            setMessage({ 
+                text: error.message || 'Failed to sign in. Please check your credentials.', 
+                isError: true 
+            });
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -38,7 +49,7 @@ export default function LoginPage() {
             </div>
 
             <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-terracotta/10">
-                <h2 className="text-2xl font-bold mb-6 text-center font-heading">Welcome Home</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center font-heading">Welcome Back</h2>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
@@ -53,22 +64,58 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    <div className="relative">
+                        <label className="block text-sm font-medium mb-1 ml-1">Password</label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full p-3 pr-10 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                                placeholder="••••••••"
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta/70 hover:text-terracotta"
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
                         className="w-full py-3 bg-terracotta text-white rounded-xl font-bold hover:bg-terracotta/90 transition-colors disabled:opacity-50 shadow-lg shadow-terracotta/20"
                     >
-                        {loading ? 'Sending link...' : 'Continue with Email'}
+                        {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
 
-                {message && (
-                    <div className="mt-4 p-3 bg-sage/10 rounded-xl text-center">
-                        <p className="text-sm text-sage font-bold">{message}</p>
+                {message.text && (
+                    <div className={`mt-4 p-3 rounded-xl text-center ${
+                        message.isError ? 'bg-red-100 text-red-700' : 'bg-sage/10 text-sage'
+                    }`}>
+                        <p className="text-sm font-bold">{message.text}</p>
                     </div>
                 )}
 
-                <div className="mt-8 text-center">
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-muted-foreground">
+                        Don't have an account?{' '}
+                        <Link href="/signup" className="text-terracotta hover:underline font-medium">
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
+
+                <div className="mt-4 text-center">
                     <p className="text-xs text-muted-foreground">
                         By continuing, you agree to our Terms and Privacy Policy.
                     </p>
