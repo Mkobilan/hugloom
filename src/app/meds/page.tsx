@@ -299,6 +299,13 @@ export default function CareTasksPage() {
                         .lt('scheduled_time', oneMinuteLater.toISOString());
 
                     if (error) throw error;
+
+                    // Update local completions state
+                    setCompletions(prev => prev.filter(c => {
+                        if (c.medication_id !== task.originalData.id) return true;
+                        const completionTime = new Date(c.scheduled_time);
+                        return completionTime < scheduledDateTime || completionTime >= oneMinuteLater;
+                    }));
                 } else {
                     // For events, delete by event_id
                     const { error } = await supabase
@@ -307,6 +314,9 @@ export default function CareTasksPage() {
                         .eq('event_id', task.originalData.id);
 
                     if (error) throw error;
+
+                    // Update local completions state
+                    setCompletions(prev => prev.filter(c => c.event_id !== task.originalData.id));
                 }
             } else {
                 // CHECK: Insert completion record
@@ -325,18 +335,18 @@ export default function CareTasksPage() {
                     completionData.event_id = task.originalData.id;
                 }
 
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('task_completions')
-                    .insert(completionData);
+                    .insert(completionData)
+                    .select();
 
                 if (error) throw error;
-            }
 
-            // Reload to ensure sync (optional, but good for consistency)
-            // await loadTasks(); 
-            // Actually, let's NOT reload immediately to keep UI snappy, 
-            // but we should update the local 'completions' state if we want persistence across filters without reload.
-            // For now, reloading on filter change is enough, and optimistic update handles current view.
+                // Update local completions state
+                if (data && data.length > 0) {
+                    setCompletions(prev => [...prev, data[0]]);
+                }
+            }
 
         } catch (error) {
             console.error('Error toggling task completion:', error);
