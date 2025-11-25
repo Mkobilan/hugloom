@@ -301,10 +301,16 @@ export default function CareTasksPage() {
                     if (error) throw error;
 
                     // Update local completions state
+                    // Use the same time extraction logic as checkCompletion
                     setCompletions(prev => prev.filter(c => {
                         if (c.medication_id !== task.originalData.id) return true;
+                        // Extract time from the completion's scheduled_time
                         const completionTime = new Date(c.scheduled_time);
-                        return completionTime < scheduledDateTime || completionTime >= oneMinuteLater;
+                        const hours = completionTime.getHours().toString().padStart(2, '0');
+                        const minutes = completionTime.getMinutes().toString().padStart(2, '0');
+                        const timeStr = `${hours}:${minutes}`;
+                        // Keep the completion if it's NOT the one we just unchecked
+                        return timeStr !== task.scheduledTime;
                     }));
                 } else {
                     // For events, delete by event_id
