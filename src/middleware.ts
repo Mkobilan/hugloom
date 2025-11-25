@@ -59,17 +59,17 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
 
   // If user is not authenticated and not on login/signup pages, redirect to signup
-  if (!session && 
-      !request.nextUrl.pathname.startsWith('/login') && 
-      !request.nextUrl.pathname.startsWith('/signup') &&
-      !request.nextUrl.pathname.startsWith('/auth/callback')) {
+  if (!session &&
+    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/signup') &&
+    !request.nextUrl.pathname.startsWith('/auth/callback')) {
     return NextResponse.redirect(new URL('/signup', request.url))
   }
 
   // If user is authenticated and tries to access login/signup, redirect to dashboard
-  if (session && 
-      (request.nextUrl.pathname === '/login' || 
-       request.nextUrl.pathname === '/signup')) {
+  if (session &&
+    (request.nextUrl.pathname === '/login' ||
+      request.nextUrl.pathname === '/signup')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
@@ -78,6 +78,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/auth/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|api/auth/).*)',
   ],
 }

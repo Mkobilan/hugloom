@@ -18,7 +18,6 @@ export default function SignupPage() {
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
-    // Update the handleSignup function in src/app/signup/page.tsx
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -78,7 +77,6 @@ export default function SignupPage() {
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-terracotta">HugLoom</h1>
                 <p className="text-muted-foreground mt-2">Someone's light is always on for you.</p>
-                <p className="text-muted-foreground mt-2">Create your account</p>
             </div>
 
             <div className="w-full max-w-md bg-card p-8 rounded-2xl shadow-xl border border-border">
