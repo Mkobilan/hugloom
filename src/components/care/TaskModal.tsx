@@ -50,12 +50,16 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                 startDate = editingTask.start_date || startDate;
             } else if (editingTask.start_time) {
                 // It's a calendar event
-                // Just read the string directly as it is stored (Local Time)
-                const timePart = editingTask.start_time.split('T')[1];
-                if (timePart) {
-                    times = [timePart.substring(0, 5)]; // "14:30"
-                }
-                startDate = editingTask.start_time.split('T')[0];
+                // Parse UTC string to local time
+                const startDateObj = new Date(editingTask.start_time);
+                const year = startDateObj.getFullYear();
+                const month = (startDateObj.getMonth() + 1).toString().padStart(2, '0');
+                const day = startDateObj.getDate().toString().padStart(2, '0');
+                const hours = startDateObj.getHours().toString().padStart(2, '0');
+                const minutes = startDateObj.getMinutes().toString().padStart(2, '0');
+
+                startDate = `${year}-${month}-${day}`;
+                times = [`${hours}:${minutes}`];
             }
 
             setFormData({
@@ -116,20 +120,13 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                     // EDITING: Update existing event
                     const time = formData.times[0]; // Use first time for single event
 
-                    // Construct Local ISO String manually to avoid UTC conversion
-                    // Format: YYYY-MM-DDTHH:mm:ss
-                    const startDateTimeStr = `${formData.startDate}T${time}:00`;
-
-                    // Calculate end time
-                    const startDateObj = new Date(`${formData.startDate}T${time}`);
+                    // Create date object in local time
+                    const startDateObj = new Date(`${formData.startDate}T${time}:00`);
                     const endDateObj = new Date(startDateObj.getTime() + formData.duration * 60000);
 
-                    const endYear = endDateObj.getFullYear();
-                    const endMonth = (endDateObj.getMonth() + 1).toString().padStart(2, '0');
-                    const endDay = endDateObj.getDate().toString().padStart(2, '0');
-                    const endHours = endDateObj.getHours().toString().padStart(2, '0');
-                    const endMinutes = endDateObj.getMinutes().toString().padStart(2, '0');
-                    const endDateTimeStr = `${endYear}-${endMonth}-${endDay}T${endHours}:${endMinutes}:00`;
+                    // Convert to UTC ISO strings for storage
+                    const startDateTimeStr = startDateObj.toISOString();
+                    const endDateTimeStr = endDateObj.toISOString();
 
                     const eventData = {
                         title: formData.name.trim(),
@@ -150,18 +147,13 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                 } else {
                     // CREATING: Insert new event(s)
                     for (const time of formData.times) {
-                        // Construct Local ISO String manually
-                        const startDateTimeStr = `${formData.startDate}T${time}:00`;
-
-                        const startDateObj = new Date(`${formData.startDate}T${time}`);
+                        // Create date object in local time
+                        const startDateObj = new Date(`${formData.startDate}T${time}:00`);
                         const endDateObj = new Date(startDateObj.getTime() + formData.duration * 60000);
 
-                        const endYear = endDateObj.getFullYear();
-                        const endMonth = (endDateObj.getMonth() + 1).toString().padStart(2, '0');
-                        const endDay = endDateObj.getDate().toString().padStart(2, '0');
-                        const endHours = endDateObj.getHours().toString().padStart(2, '0');
-                        const endMinutes = endDateObj.getMinutes().toString().padStart(2, '0');
-                        const endDateTimeStr = `${endYear}-${endMonth}-${endDay}T${endHours}:${endMinutes}:00`;
+                        // Convert to UTC ISO strings for storage
+                        const startDateTimeStr = startDateObj.toISOString();
+                        const endDateTimeStr = endDateObj.toISOString();
 
                         await supabase.from('calendar_events').insert({
                             title: formData.name.trim(),
@@ -197,20 +189,20 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
             <div className="bg-soft-blush rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <div className="sticky top-0 bg-soft-blush border-b border-slate-blue/20 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Icon className={`w-5 h-5 ${config.color}`} />
-                        <h2 className="text-xl font-heading font-bold text-foreground">
+                        <Icon className={`w-5 h-5 text-deep-slate`} />
+                        <h2 className="text-xl font-heading font-bold text-gray-900">
                             {editingTask ? 'Edit' : 'Add'} {config.label}
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-dusty-rose rounded-full transition-colors">
-                        <X className="w-5 h-5" />
+                    <button onClick={onClose} className="p-2 hover:bg-dusty-rose rounded-full transition-colors text-gray-900">
+                        <X className="w-5 h-5 text-gray-900" />
                     </button>
                 </div>
 
                 <div className="p-6 space-y-5">
                     {/* Task Type Selector */}
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Task Type</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Task Type</label>
                         <div className="grid grid-cols-2 gap-2">
                             {Object.entries(TASK_TYPE_CONFIG).map(([type, typeConfig]) => {
                                 const TypeIcon = typeConfig.icon;
@@ -220,8 +212,8 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                                         onClick={() => setFormData(prev => ({ ...prev, taskCategory: type as any }))}
                                         className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${isSelected ? 'border-slate-blue bg-slate-blue/10' : 'border-border hover:border-slate-blue/50'
                                             }`}>
-                                        <TypeIcon className={`w-5 h-5 ${isSelected ? typeConfig.color : 'text-muted-foreground'}`} />
-                                        <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                        <TypeIcon className={`w-5 h-5 ${isSelected ? 'text-deep-slate' : 'text-gray-700'}`} />
+                                        <span className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
                                             {typeConfig.label}
                                         </span>
                                     </button>
@@ -231,29 +223,29 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                        <label className="block text-sm font-medium text-gray-900 mb-2">
                             Name <span className="text-red-500">*</span>
                         </label>
                         <input type="text" value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="e.g., Lisinopril"
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                         />
                     </div>
 
                     {formData.taskCategory === 'medication' && (
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">Dosage</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">Dosage</label>
                             <input type="text" value={formData.dosage}
                                 onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
                                 placeholder="e.g., 10mg"
-                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                             />
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Frequency</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Frequency</label>
                         <select value={formData.frequency}
                             onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
                             className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all">
@@ -267,7 +259,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                     {/* Date Picker for Non-Recurring Tasks (Appointments, One-off Tasks) */}
                     {(formData.taskCategory === 'appointment' || formData.taskCategory === 'task' || formData.taskCategory === 'personal_care') && (
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">
+                            <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Date <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -281,7 +273,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-medium text-foreground">
+                            <label className="block text-sm font-medium text-gray-900">
                                 {formData.taskCategory === 'medication' ? 'Times' : 'Time'} <span className="text-red-500">*</span>
                             </label>
                             {formData.taskCategory === 'medication' && (
@@ -294,7 +286,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                         <div className="space-y-2">
                             {formData.times.map((time, index) => (
                                 <div key={index} className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-muted-foreground" />
+                                    <Clock className="w-4 h-4 text-gray-700" />
                                     <input type="time" value={time}
                                         onChange={(e) => updateTime(index, e.target.value)}
                                         className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
@@ -311,7 +303,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Notes</label>
                         <textarea value={formData.notes}
                             onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             placeholder="Additional instructions..."
