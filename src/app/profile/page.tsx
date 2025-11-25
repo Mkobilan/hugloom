@@ -274,7 +274,7 @@ export default function ProfilePage() {
                             value={profile.username}
                             onChange={(e) => handleInputChange('username', e.target.value)}
                             placeholder="Choose a username"
-                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                         />
                         <p className="text-xs text-muted-foreground mt-1">This is how others will see you</p>
                     </div>
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                             value={profile.full_name}
                             onChange={(e) => handleInputChange('full_name', e.target.value)}
                             placeholder="Your full name"
-                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                         />
                     </div>
 
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                             onChange={(e) => handleInputChange('bio', e.target.value)}
                             placeholder="Tell us about yourself and your caregiving journey..."
                             rows={4}
-                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all resize-none"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                             {profile.bio.length}/500 characters
@@ -320,7 +320,7 @@ export default function ProfilePage() {
                             value={profile.location}
                             onChange={(e) => handleInputChange('location', e.target.value)}
                             placeholder="City, State or Region"
-                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                         />
                     </div>
 
@@ -332,7 +332,7 @@ export default function ProfilePage() {
                         <select
                             value={profile.role}
                             onChange={(e) => handleInputChange('role', e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border/50 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                         >
                             <option value="caregiver">Caregiver</option>
                             <option value="professional">Healthcare Professional</option>
@@ -360,7 +360,7 @@ export default function ProfilePage() {
                 <div className="mt-8 flex gap-3">
                     <button
                         onClick={() => router.push('/more')}
-                        className="flex-1 px-6 py-3 rounded-xl border border-border/50 bg-white text-foreground font-medium hover:bg-cream/50 transition-colors"
+                        className="flex-1 px-6 py-3 rounded-xl border border-border/50 bg-white text-gray-900 font-medium hover:bg-cream/50 transition-colors"
                     >
                         Cancel
                     </button>

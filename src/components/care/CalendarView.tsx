@@ -20,7 +20,7 @@ export const CalendarView = ({ events }: { events: any[] }) => {
         <div className="space-y-6">
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-terracotta/10">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-heading font-bold text-lg text-terracotta">
+                    <h2 className="font-heading font-bold text-lg text-gray-900">
                         {format(currentDate, 'MMMM yyyy')}
                     </h2>
                     <div className="flex gap-2">
@@ -49,7 +49,7 @@ export const CalendarView = ({ events }: { events: any[] }) => {
                                 onClick={() => setSelectedDate(day)}
                                 className={cn(
                                     "h-10 rounded-full flex items-center justify-center text-sm relative transition-all",
-                                    isSameDay(day, selectedDate) ? "bg-terracotta text-white font-bold shadow-md shadow-terracotta/20" : "hover:bg-cream text-foreground",
+                                    isSameDay(day, selectedDate) ? "bg-terracotta text-white font-bold shadow-md shadow-terracotta/20" : "hover:bg-cream text-gray-900",
                                     !isSameMonth(day, currentDate) && "text-muted-foreground/30"
                                 )}
                             >
@@ -64,7 +64,7 @@ export const CalendarView = ({ events }: { events: any[] }) => {
             </div>
 
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-terracotta/10">
-                <h3 className="font-bold text-foreground mb-4 font-heading">
+                <h3 className="font-bold text-gray-900 mb-4 font-heading">
                     {format(selectedDate, 'EEEE, MMMM do')}
                 </h3>
                 <div className="space-y-3">
@@ -97,7 +97,7 @@ export const CalendarView = ({ events }: { events: any[] }) => {
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm">{getCategoryIcon(event.task_category)}</span>
-                                            <h4 className="font-bold text-sm text-foreground">{event.title}</h4>
+                                            <h4 className="font-bold text-sm text-gray-900">{event.title}</h4>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             {format(new Date(event.start_time), 'h:mm a')}

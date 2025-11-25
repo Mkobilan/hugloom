@@ -59,28 +59,36 @@
 :root {
   --radius: 0.625rem;
 
-  /* Custom Palette - Dusty Rose & Slate Theme */
+  /* Custom Palette - Cozy Cabin Theme */
   --dusty-rose: #E8D5D5;
-  --soft-blush: #F5EDED;
+  /* Kept for reference/legacy */
+  --soft-blush: #4A4042;
+  /* Lighter Warm Charcoal - New Background */
   --slate-blue: #4A5F7A;
-  --deep-slate: #3D4F5F;
-  --terracotta: #F9A28A;
-  --sage: #7A8F7E;
-  /* Deepened for better contrast */
-  --cream: #FDF8F0;
+  /* Muted Blue */
+  --deep-slate: #1F2933;
+  /* Darker Slate */
+  --terracotta: #D66E53;
+  /* Deep Rust */
+  --sage: #5E7862;
+  /* Forest Green */
+
+  --cream: #3C3434;
+  /* Lighter Warm Charcoal - New Card Background */
   --lavender: #D9C8E8;
-  --mustard: #E8B923;
+  --mustard: #CFA008;
+  /* Deep Gold */
 
   /* Semantic Colors */
-  --background: var(--dusty-rose);
-  --foreground: #2D2D2D;
-  /* Charcoal - excellent contrast on dusty rose */
+  --background: var(--soft-blush);
+  --foreground: #F5EDED;
+  /* Soft Blush Text for Dark Background */
 
-  --card: var(--soft-blush);
-  --card-foreground: #2D2D2D;
+  --card: var(--cream);
+  --card-foreground: #F5EDED;
 
-  --popover: var(--soft-blush);
-  --popover-foreground: #2D2D2D;
+  --popover: var(--cream);
+  --popover-foreground: #F5EDED;
 
   --primary: var(--terracotta);
   --primary-foreground: #FFFFFF;
@@ -88,20 +96,17 @@
   --secondary: var(--slate-blue);
   --secondary-foreground: #FFFFFF;
 
-  --muted: #C5B5B5;
-  /* Muted rose-gray */
-  --muted-foreground: #5A5A5A;
-  /* Darker for better readability */
+  --muted: #5A4A4A;
+  --muted-foreground: #A89898;
 
   --accent: var(--slate-blue);
   --accent-foreground: #FFFFFF;
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: #D4C4C4;
-  /* Rose-tinted border */
-  --input: #D4C4C4;
-  --ring: var(--slate-blue);
+  --border: #5A4A4A;
+  --input: #5A4A4A;
+  --ring: var(--terracotta);
 
   --chart-1: var(--terracotta);
   --chart-2: var(--slate-blue);
@@ -109,14 +114,14 @@
   --chart-4: var(--mustard);
   --chart-5: var(--lavender);
 
-  --sidebar: var(--dusty-rose);
-  --sidebar-foreground: #2D2D2D;
+  --sidebar: var(--soft-blush);
+  --sidebar-foreground: #F5EDED;
   --sidebar-primary: var(--terracotta);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--slate-blue);
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #D4C4C4;
-  --sidebar-ring: var(--slate-blue);
+  --sidebar-accent: var(--cream);
+  --sidebar-accent-foreground: #F5EDED;
+  --sidebar-border: #5A4A4A;
+  --sidebar-ring: var(--terracotta);
 }
 
 .dark {

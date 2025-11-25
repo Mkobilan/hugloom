@@ -114,9 +114,6 @@ export default function MorePage() {
                 </div>
 
                 <div className="space-y-1">
-                    <MenuItem icon={User} label="My Profile" href="/profile" />
-                    <MenuItem icon={HeartHandshake} label="My Care Circles" href="/circles" />
-                    <MenuItem icon={Shield} label="Local Help" href="/help" />
                     <MenuItem icon={Settings} label="Settings" href="/settings" />
                     <MenuItem icon={HelpCircle} label="Help & Support" href="/support" />
                     <MenuItem

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Flame } from 'lucide-react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 
 export const TopBar = () => {
@@ -40,10 +40,10 @@ export const TopBar = () => {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-soft-blush/90 backdrop-blur-md border-b border-slate-blue/20 px-4 py-3 flex items-center justify-between shadow-sm">
+        <header className="sticky top-0 z-50 w-full bg-background px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <div className="p-2 bg-terracotta/10 rounded-full">
-                    <Flame className="w-6 h-6 text-terracotta fill-terracotta/20 animate-pulse" />
+                    <Image src="/hugloom_logo.png" alt="HugLoom Logo" width={24} height={24} className="object-contain" />
                 </div>
                 <div>
                     <h1 className="font-heading font-bold text-lg text-foreground leading-tight">

@@ -2,7 +2,8 @@
 "use client";
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Flame, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -17,7 +18,7 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setMessage({ text: '', isError: false });
-        
+
         try {
             const { error } = await supabase.auth.signInWithPassword({
                 email,
@@ -25,13 +26,13 @@ export default function LoginPage() {
             });
 
             if (error) throw error;
-            
+
             // Redirect to root after successful login
             window.location.href = '/';
         } catch (error: any) {
-            setMessage({ 
-                text: error.message || 'Failed to sign in. Please check your credentials.', 
-                isError: true 
+            setMessage({
+                text: error.message || 'Failed to sign in. Please check your credentials.',
+                isError: true
             });
         } finally {
             setLoading(false);
@@ -39,16 +40,16 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-4 font-sans text-foreground">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 font-sans text-foreground">
             <div className="mb-8 flex flex-col items-center animate-pulse">
-                <div className="p-4 bg-terracotta/20 rounded-full mb-4">
-                    <Flame className="w-12 h-12 text-terracotta fill-terracotta/20" />
+                <div className="p-4 bg-terracotta/10 rounded-full mb-4">
+                    <Image src="/hugloom_logo.png" alt="HugLoom Logo" width={48} height={48} className="object-contain" unoptimized />
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-terracotta">HugLoom</h1>
                 <p className="text-muted-foreground mt-2">Someone's light is always on for you.</p>
             </div>
 
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-terracotta/10">
+            <div className="w-full max-w-md bg-card p-8 rounded-2xl shadow-xl border border-border">
                 <h2 className="text-2xl font-bold mb-6 text-center font-heading">Welcome Back</h2>
 
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -99,9 +100,8 @@ export default function LoginPage() {
                 </form>
 
                 {message.text && (
-                    <div className={`mt-4 p-3 rounded-xl text-center ${
-                        message.isError ? 'bg-red-100 text-red-700' : 'bg-sage/10 text-sage'
-                    }`}>
+                    <div className={`mt-4 p-3 rounded-xl text-center ${message.isError ? 'bg-red-100 text-red-700' : 'bg-sage/10 text-sage'
+                        }`}>
                         <p className="text-sm font-bold">{message.text}</p>
                     </div>
                 )}

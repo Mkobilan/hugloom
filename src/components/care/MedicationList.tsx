@@ -40,11 +40,11 @@ export const MedicationList = ({ medications, onEdit, onDelete }: MedicationList
                                 <Pill className="w-5 h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-foreground">{med.name}</h3>
-                                <p className="text-sm text-muted-foreground">
+                                <h3 className="font-bold text-gray-900">{med.name}</h3>
+                                <p className="text-sm text-gray-700">
                                     {med.dosage} {med.dosage && med.frequency && '•'} {med.frequency}
                                 </p>
-                                <p className="text-xs text-muted-foreground mt-1">
+                                <p className="text-xs text-gray-700 mt-1">
                                     {med.times.length} time{med.times.length !== 1 ? 's' : ''} daily: {med.times.join(', ')}
                                 </p>
                             </div>

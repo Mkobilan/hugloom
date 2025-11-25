@@ -237,7 +237,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                         <input type="text" value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="e.g., Lisinopril"
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                         />
                     </div>
 
@@ -247,7 +247,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                             <input type="text" value={formData.dosage}
                                 onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
                                 placeholder="e.g., 10mg"
-                                className="w-full px-4 py-3 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                             />
                         </div>
                     )}
@@ -256,7 +256,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                         <label className="block text-sm font-medium text-foreground mb-2">Frequency</label>
                         <select value={formData.frequency}
                             onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all">
+                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all">
                             <option value="">Select frequency</option>
                             <option value="Once daily">Once daily</option>
                             <option value="Twice daily">Twice daily</option>
@@ -274,7 +274,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                                 type="date"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                                className="w-full px-4 py-3 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                             />
                         </div>
                     )}
@@ -297,7 +297,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                                     <Clock className="w-4 h-4 text-muted-foreground" />
                                     <input type="time" value={time}
                                         onChange={(e) => updateTime(index, e.target.value)}
-                                        className="flex-1 px-4 py-2 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                        className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                                     />
                                     {formData.times.length > 1 && formData.taskCategory === 'medication' && (
                                         <button type="button" onClick={() => removeTime(index)}
@@ -316,14 +316,14 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                             onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             placeholder="Additional instructions..."
                             rows={3}
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all resize-none"
                         />
                     </div>
                 </div>
 
                 <div className="sticky bottom-0 bg-soft-blush border-t border-slate-blue/20 p-4 flex gap-3">
                     <button onClick={onClose}
-                        className="flex-1 px-6 py-3 rounded-xl border border-border bg-white text-foreground font-medium hover:bg-dusty-rose transition-colors">
+                        className="flex-1 px-6 py-3 rounded-xl border border-border bg-white text-gray-900 font-medium hover:bg-dusty-rose transition-colors">
                         Cancel
                     </button>
                     <button onClick={handleSave} disabled={loading}

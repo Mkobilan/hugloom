@@ -184,11 +184,11 @@ const TaskCard = ({
                         <span className={cn("text-xs font-bold px-2 py-0.5 rounded", variant === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-slate-blue/10 text-slate-blue')}>
                             {displayDate ? `${displayDate} • ` : ''}{task.scheduledTime}
                         </span>
-                        <h3 className={cn("font-bold truncate", task.isCompleted && 'line-through text-muted-foreground')}>
+                        <h3 className={cn("font-bold truncate", task.isCompleted ? 'line-through text-muted-foreground' : 'text-gray-900')}>
                             {task.name}
                         </h3>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-sm text-gray-700 truncate">
                         {task.dosage && task.frequency ? `${task.dosage} • ${task.frequency}` : task.notes}
                     </p>
                 </div>
