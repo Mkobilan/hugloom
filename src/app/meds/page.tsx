@@ -294,11 +294,11 @@ export default function CareTasksPage() {
 
                     if (error) throw error;
                 } else {
-                    // For events, delete by calendar_event_id
+                    // For events, delete by event_id
                     const { error } = await supabase
                         .from('task_completions')
                         .delete()
-                        .eq('calendar_event_id', task.originalData.id);
+                        .eq('event_id', task.originalData.id);
 
                     if (error) throw error;
                 }
@@ -316,7 +316,7 @@ export default function CareTasksPage() {
                 if (task.taskCategory === 'medication') {
                     completionData.medication_id = task.originalData.id;
                 } else {
-                    completionData.calendar_event_id = task.originalData.id;
+                    completionData.event_id = task.originalData.id;
                 }
 
                 const { error } = await supabase
