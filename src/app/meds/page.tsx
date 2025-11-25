@@ -130,12 +130,17 @@ export default function CareTasksPage() {
         // Helper to check completion
         const checkCompletion = (type: 'medication' | 'event', id: string, scheduledTimeStr: string) => {
             if (type === 'medication') {
-                // For meds, we need to match ID and the specific scheduled time for today
-                // We check if any completion record matches the medication ID and starts with today's date + time
-                return taskCompletions.some(c =>
-                    c.medication_id === id &&
-                    c.scheduled_time.startsWith(`${today}T${scheduledTimeStr}`)
-                );
+                // For meds, we need to match ID and the specific scheduled time
+                // Extract the time portion (HH:MM) from the stored scheduled_time and compare
+                return taskCompletions.some(c => {
+                    if (c.medication_id !== id) return false;
+                    // Extract time from scheduled_time (format: "2025-11-25T08:00:00+06:00")
+                    const scheduledTime = new Date(c.scheduled_time);
+                    const hours = scheduledTime.getHours().toString().padStart(2, '0');
+                    const minutes = scheduledTime.getMinutes().toString().padStart(2, '0');
+                    const timeStr = `${hours}:${minutes}`;
+                    return timeStr === scheduledTimeStr;
+                });
             } else {
                 // For events, ID is unique per row
                 return taskCompletions.some(c => c.event_id === id);
@@ -282,15 +287,16 @@ export default function CareTasksPage() {
                 // UNCHECK: Delete completion record
                 if (task.taskCategory === 'medication') {
                     // Find the completion record to delete
-                    // We need to match medication_id and scheduled_time (approx)
-                    const today = new Date().toISOString().split('T')[0];
-                    const timePrefix = `${today}T${task.scheduledTime}`;
+                    // We need to match medication_id and scheduled_time using time range
+                    const scheduledDateTime = new Date(`${task.date}T${task.scheduledTime}`);
+                    const oneMinuteLater = new Date(scheduledDateTime.getTime() + 60000);
 
                     const { error } = await supabase
                         .from('task_completions')
                         .delete()
                         .eq('medication_id', task.originalData.id)
-                        .ilike('scheduled_time', `${timePrefix}%`); // Use ilike for prefix match
+                        .gte('scheduled_time', scheduledDateTime.toISOString())
+                        .lt('scheduled_time', oneMinuteLater.toISOString());
 
                     if (error) throw error;
                 } else {
