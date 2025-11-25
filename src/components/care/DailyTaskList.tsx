@@ -168,9 +168,8 @@ const TaskCard = ({
         <div className={cn("p-4 rounded-xl border flex items-center justify-between", borderColor, bgColor)}>
             <div className="flex items-center gap-4 flex-1">
                 <button
-                    onClick={() => !task.isCompleted && onComplete(task)}
-                    disabled={task.isCompleted}
-                    className="flex-shrink-0"
+                    onClick={() => onComplete(task)}
+                    className="flex-shrink-0 cursor-pointer"
                 >
                     {task.isCompleted ? (
                         <CheckCircle2 className="w-6 h-6 text-sage fill-sage/20" />
