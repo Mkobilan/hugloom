@@ -17,7 +17,7 @@ export const PostCard = ({ post }: { post: any }) => {
                 </div>
             </div>
 
-            <p className="text-foreground/90 mb-4 whitespace-pre-wrap leading-relaxed">{post.content}</p>
+            <p className="text-black mb-4 whitespace-pre-wrap leading-relaxed">{post.content}</p>
 
             {post.media_urls?.length > 0 && (
                 <div className="mb-4 rounded-xl overflow-hidden border border-border/50">

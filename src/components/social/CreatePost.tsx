@@ -38,7 +38,7 @@ export const CreatePost = () => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Share what's on your heart..."
-                className="w-full p-3 rounded-xl bg-cream/50 border-none focus:ring-2 focus:ring-terracotta/20 resize-none min-h-[100px] placeholder:text-muted-foreground/70 text-foreground"
+                className="w-full p-3 rounded-xl bg-cream/50 border-none focus:ring-2 focus:ring-terracotta/20 resize-none min-h-[100px] placeholder:text-muted-foreground/70 text-black"
             />
             <div className="flex items-center justify-between mt-3">
                 <button className="p-2 text-muted-foreground hover:text-terracotta transition-colors rounded-full hover:bg-terracotta/10">
