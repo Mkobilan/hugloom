@@ -75,7 +75,7 @@ export default function SignupPage() {
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 font-sans text-foreground">
             <div className="mb-8 flex flex-col items-center animate-pulse">
                 <div className="p-4 bg-terracotta/10 rounded-full mb-4">
-                    <Image src="/hugloom_logo.png" alt="HugLoom Logo" width={48} height={48} className="object-contain" unoptimized />
+                    <Image src="/hugloom_logo.png" alt="HugLoom Logo" width={48} height={48} className="object-contain" />
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-terracotta">HugLoom</h1>
                 <p className="text-muted-foreground mt-2">Create your account</p>
