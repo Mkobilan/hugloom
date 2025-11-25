@@ -130,17 +130,12 @@ export default function CareTasksPage() {
         // Helper to check completion
         const checkCompletion = (type: 'medication' | 'event', id: string, scheduledTimeStr: string) => {
             if (type === 'medication') {
-                // For meds, we need to match ID and the specific scheduled time
-                // Extract the time portion (HH:MM) from the stored scheduled_time and compare
-                return taskCompletions.some(c => {
-                    if (c.medication_id !== id) return false;
-                    // Extract time from scheduled_time (format: "2025-11-25T08:00:00+06:00")
-                    const scheduledTime = new Date(c.scheduled_time);
-                    const hours = scheduledTime.getHours().toString().padStart(2, '0');
-                    const minutes = scheduledTime.getMinutes().toString().padStart(2, '0');
-                    const timeStr = `${hours}:${minutes}`;
-                    return timeStr === scheduledTimeStr;
-                });
+                // Simple text-based matching - no timezone conversions
+                const scheduledTimeText = `${today}T${scheduledTimeStr}`;
+                return taskCompletions.some(c =>
+                    c.medication_id === id &&
+                    c.scheduled_time.startsWith(scheduledTimeText)
+                );
             } else {
                 // For events, ID is unique per row
                 return taskCompletions.some(c => c.event_id === id);
@@ -286,31 +281,22 @@ export default function CareTasksPage() {
             if (task.isCompleted) {
                 // UNCHECK: Delete completion record
                 if (task.taskCategory === 'medication') {
-                    // Find the completion record to delete
-                    // We need to match medication_id and scheduled_time using time range
-                    const scheduledDateTime = new Date(`${task.date}T${task.scheduledTime}`);
-                    const oneMinuteLater = new Date(scheduledDateTime.getTime() + 60000);
+                    // Simple text-based matching - no timezone conversions
+                    const scheduledTimeText = `${task.date}T${task.scheduledTime}`;
 
                     const { error } = await supabase
                         .from('task_completions')
                         .delete()
                         .eq('medication_id', task.originalData.id)
-                        .gte('scheduled_time', scheduledDateTime.toISOString())
-                        .lt('scheduled_time', oneMinuteLater.toISOString());
+                        .like('scheduled_time', `${scheduledTimeText}%`);
 
                     if (error) throw error;
 
-                    // Update local completions state
-                    // Use the same time extraction logic as checkCompletion
+                    // Update local completions state - simple text matching
                     setCompletions(prev => prev.filter(c => {
                         if (c.medication_id !== task.originalData.id) return true;
-                        // Extract time from the completion's scheduled_time
-                        const completionTime = new Date(c.scheduled_time);
-                        const hours = completionTime.getHours().toString().padStart(2, '0');
-                        const minutes = completionTime.getMinutes().toString().padStart(2, '0');
-                        const timeStr = `${hours}:${minutes}`;
-                        // Keep the completion if it's NOT the one we just unchecked
-                        return timeStr !== task.scheduledTime;
+                        // Keep completions that DON'T start with this scheduled time
+                        return !c.scheduled_time.startsWith(scheduledTimeText);
                     }));
                 } else {
                     // For events, delete by event_id
@@ -326,12 +312,12 @@ export default function CareTasksPage() {
                 }
             } else {
                 // CHECK: Insert completion record
-                const scheduledDateTime = new Date(`${task.date}T${task.scheduledTime}`);
-                // Note: task.date is YYYY-MM-DD. task.scheduledTime is HH:MM.
+                // Use simple text format - no timezone conversion
+                const scheduledTimeText = `${task.date}T${task.scheduledTime}:00`;
 
                 const completionData: any = {
                     completed_by: user.id,
-                    scheduled_time: scheduledDateTime.toISOString(),
+                    scheduled_time: scheduledTimeText,
                     status: 'completed',
                 };
 
