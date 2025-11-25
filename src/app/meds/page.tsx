@@ -283,12 +283,16 @@ export default function CareTasksPage() {
                 if (task.taskCategory === 'medication') {
                     // Simple text-based matching - no timezone conversions
                     const scheduledTimeText = `${task.date}T${task.scheduledTime}`;
+                    // For timestamp columns, we need to use range queries
+                    const startTime = `${scheduledTimeText}:00`;
+                    const endTime = `${scheduledTimeText}:59`;
 
                     const { error } = await supabase
                         .from('task_completions')
                         .delete()
                         .eq('medication_id', task.originalData.id)
-                        .like('scheduled_time', `${scheduledTimeText}%`);
+                        .gte('scheduled_time', startTime)
+                        .lte('scheduled_time', endTime);
 
                     if (error) throw error;
 
