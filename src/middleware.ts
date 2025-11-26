@@ -59,10 +59,13 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
 
   // If user is not authenticated and not on login/signup pages, redirect to signup
+  // EXCEPT for public routes like post pages and user profiles
   if (!session &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/signup') &&
-    !request.nextUrl.pathname.startsWith('/auth/callback')) {
+    !request.nextUrl.pathname.startsWith('/auth/callback') &&
+    !request.nextUrl.pathname.startsWith('/post/') &&
+    !request.nextUrl.pathname.startsWith('/u/')) {
     return NextResponse.redirect(new URL('/signup', request.url))
   }
 
