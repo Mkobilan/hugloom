@@ -142,7 +142,11 @@ export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
                         {message.reactions && message.reactions.length > 0 && (
                             <div className="absolute -bottom-3 right-0 flex gap-1 bg-white rounded-full px-1.5 py-0.5 shadow-sm border border-border text-xs">
                                 {message.reactions.map((reaction, i) => (
-                                    <span key={i}>{reaction.type === 'hug' ? '🤗' : reaction.type === 'heart' ? '❤️' : '👍'}</span>
+                                    <span key={i}>
+                                        {reaction.type === 'hug' ? '🤗' :
+                                            reaction.type === 'heart' ? '❤️' :
+                                                reaction.type === 'thumbs_up' ? '👍' : '👍'}
+                                    </span>
                                 ))}
                             </div>
                         )}
@@ -152,13 +156,29 @@ export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
                 {/* Actions Menu */}
                 {showActions && (
                     <div className={cn("flex items-center gap-1 mt-1 px-2", isOwn ? "flex-row-reverse" : "flex-row")}>
-                        <button
-                            onClick={() => handleReaction('heart')}
-                            className="p-1 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-                            title="Like"
-                        >
-                            <Smile className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-0.5 bg-white/80 backdrop-blur-sm rounded-full px-1 shadow-sm border border-gray-100">
+                            <button
+                                onClick={() => handleReaction('heart')}
+                                className="p-1.5 rounded-full hover:bg-rose-50 hover:text-rose-500 text-gray-400 transition-colors"
+                                title="Love"
+                            >
+                                ❤️
+                            </button>
+                            <button
+                                onClick={() => handleReaction('hug')}
+                                className="p-1.5 rounded-full hover:bg-orange-50 hover:text-orange-500 text-gray-400 transition-colors"
+                                title="Hug"
+                            >
+                                🤗
+                            </button>
+                            <button
+                                onClick={() => handleReaction('thumbs_up')}
+                                className="p-1.5 rounded-full hover:bg-blue-50 hover:text-blue-500 text-gray-400 transition-colors"
+                                title="Like"
+                            >
+                                👍
+                            </button>
+                        </div>
                         {isOwn && (
                             <>
                                 <button

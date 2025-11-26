@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Manrope, Inter, Kalam } from "next/font/google";
 import "./globals.css";
 
+import { NotificationListener } from "@/components/notifications/NotificationListener";
+
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-heading",
@@ -33,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
+        <NotificationListener />
         {children}
       </body>
     </html>
