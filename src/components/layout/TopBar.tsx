@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HeartHandshake } from 'lucide-react';
+import { SearchBar } from './SearchBar';
 import { createClient } from '@/lib/supabase/client';
 
 export const TopBar = () => {
@@ -44,12 +45,12 @@ export const TopBar = () => {
     };
 
     return (
-        <header className="flex items-center justify-between p-4 bg-background backdrop-blur-sm sticky top-0 z-10 border-b border-white/20 mb-6">
-            <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between p-4 bg-background backdrop-blur-sm sticky top-0 z-10 border-b border-white/20 mb-6 gap-4">
+            <div className="flex items-center gap-3 shrink-0">
                 <div className="w-10 h-10 rounded-full bg-terracotta flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-terracotta/20">
                     <HeartHandshake className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="hidden sm:block">
                     <h1 className="font-heading font-bold text-xl text-foreground tracking-tight">
                         HugLoom
                     </h1>
@@ -58,7 +59,12 @@ export const TopBar = () => {
                     </p>
                 </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex-1 max-w-md mx-4">
+                <SearchBar />
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
                 {/* Profile Link */}
                 <Link href={username && username !== 'there' ? `/u/${username}` : '/profile'}>
                     <div className="w-10 h-10 rounded-full bg-slate-blue/20 border border-slate-blue/40 overflow-hidden cursor-pointer hover:ring-2 hover:ring-slate-blue/50 transition-all">
