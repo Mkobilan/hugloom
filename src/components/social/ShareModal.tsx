@@ -110,10 +110,10 @@ export const ShareModal = ({ postId, postContent, username, onClose, commentId }
                                     href={option.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`flex items-center gap-3 p-4 rounded-xl border border-border/50 transition-all ${option.color} group`}
+                                    className={`flex items-center gap-3 p-4 rounded-xl border border-border/50 transition-all ${option.color} group text-black`}
                                 >
                                     <Icon className="w-5 h-5" />
-                                    <span className="font-medium text-sm text-black group-hover:text-inherit">
+                                    <span className="font-medium text-sm">
                                         {option.name}
                                     </span>
                                 </a>
