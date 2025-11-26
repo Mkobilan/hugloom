@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ProfileActions } from '@/components/social/ProfileActions'
 import { FollowButton } from '@/components/social/FollowButton'
-import { FollowCounts } from '@/components/social/FollowCounts'
+import { FollowCounts } from '../../../components/social/FollowCounts'
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const supabase = await createClient()
