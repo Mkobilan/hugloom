@@ -168,10 +168,10 @@ export const CommentItem = ({
                         )}
 
                         {isOwner && !isEditing && (
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-2 right-2">
                                 <button
                                     onClick={() => setShowMenu(!showMenu)}
-                                    className="p-1 text-muted-foreground hover:bg-slate-200 rounded-full"
+                                    className="p-1 text-black hover:bg-slate-200 rounded-full"
                                 >
                                     <MoreHorizontal className="w-4 h-4" />
                                 </button>
@@ -182,7 +182,7 @@ export const CommentItem = ({
                                                 setIsEditing(true);
                                                 setShowMenu(false);
                                             }}
-                                            className="w-full px-3 py-1.5 text-left text-xs hover:bg-slate-50 flex items-center gap-2"
+                                            className="w-full px-3 py-1.5 text-left text-xs hover:bg-slate-50 flex items-center gap-2 text-black font-medium"
                                         >
                                             <Edit2 className="w-3 h-3" /> Edit
                                         </button>
