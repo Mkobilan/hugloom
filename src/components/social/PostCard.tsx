@@ -33,7 +33,7 @@ export const PostCard = ({ post }: { post: any }) => {
         // Optimistic update
         const newIsLiked = !isLiked;
         setIsLiked(newIsLiked);
-        setLikesCount(prev => newIsLiked ? prev + 1 : prev - 1);
+        setLikesCount((prev: number) => newIsLiked ? prev + 1 : prev - 1);
 
         try {
             if (newIsLiked) {
@@ -59,7 +59,7 @@ export const PostCard = ({ post }: { post: any }) => {
             console.error('Error toggling like:', error);
             // Revert optimistic update on error
             setIsLiked(!newIsLiked);
-            setLikesCount(prev => !newIsLiked ? prev + 1 : prev - 1);
+            setLikesCount((prev: number) => !newIsLiked ? prev + 1 : prev - 1);
         } finally {
             setIsLikeLoading(false);
         }
