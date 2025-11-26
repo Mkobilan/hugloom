@@ -42,7 +42,7 @@ export default function ThreadPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
+            <div className="flex justify-center items-center min-h-screen bg-cream">
                 <Loader2 className="w-8 h-8 animate-spin text-terracotta" />
             </div>
         );
@@ -52,7 +52,7 @@ export default function ThreadPage() {
 
     if (!fullTargetComment) {
         return (
-            <div className="max-w-2xl mx-auto p-4 text-center">
+            <div className="max-w-2xl mx-auto p-4 text-center bg-cream min-h-screen">
                 <p className="text-muted-foreground">Comment not found.</p>
                 <Link href="/" className="text-terracotta hover:underline mt-2 inline-block">
                     Go Home
@@ -75,16 +75,16 @@ export default function ThreadPage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto min-h-screen bg-white border-x border-border/50">
+        <div className="max-w-2xl mx-auto min-h-screen bg-cream border-x border-border/50">
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-border/50 px-4 py-3 flex items-center gap-4">
+            <div className="sticky top-0 z-10 bg-cream/95 backdrop-blur-md border-b border-border/50 px-4 py-3 flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                    className="p-2 hover:bg-black/5 rounded-full transition-colors text-black"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h1 className="font-bold text-lg">Thread</h1>
+                <h1 className="font-bold text-lg text-black">Thread</h1>
             </div>
 
             <div className="p-4">
