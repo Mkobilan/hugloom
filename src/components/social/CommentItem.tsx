@@ -140,9 +140,9 @@ export const CommentItem = ({
                 </Link>
 
                 <div className="flex-1 min-w-0">
-                    <div className="bg-slate-50 rounded-2xl p-3 relative group-hover:bg-slate-100 transition-colors">
+                    <div className="bg-[#3C3434] rounded-2xl p-3 relative group-hover:bg-[#4A4042] transition-colors">
                         <div className="flex justify-between items-start gap-2">
-                            <Link href={`/u/${comment.profiles?.username}`} className="font-semibold text-sm text-black hover:underline">
+                            <Link href={`/u/${comment.profiles?.username}`} className="font-semibold text-sm text-white hover:underline">
                                 @{comment.profiles?.username || 'anonymous'}
                             </Link>
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -177,7 +177,7 @@ export const CommentItem = ({
                             <div
                                 className={cn(
                                     "mt-1 break-words cursor-pointer",
-                                    isDeleted ? "text-muted-foreground italic text-sm" : "text-black",
+                                    isDeleted ? "text-muted-foreground italic text-sm" : "text-white",
                                     isHero ? "text-lg" : "text-sm"
                                 )}
                                 onClick={() => {
