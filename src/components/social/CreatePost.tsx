@@ -1,7 +1,7 @@
 "use client";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Image, Send } from 'lucide-react';
+import { Image, Send, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface CreatePostProps {
@@ -12,11 +12,45 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const supabase = createClient();
     const router = useRouter();
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB');
+                return;
+            }
+            setSelectedImage(file);
+            // Create preview URL
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     const handleSubmit = async () => {
-        if (!content.trim()) return;
+        if (!content.trim() && !selectedImage) return;
         setLoading(true);
 
         const { data: { user } } = await supabase.auth.getUser();
@@ -25,19 +59,55 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
             return;
         }
 
+        let mediaUrls: string[] = [];
+
+        // Upload image if selected
+        if (selectedImage) {
+            const fileExt = selectedImage.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('post-media')
+                .upload(filePath, selectedImage);
+
+            if (uploadError) {
+                console.error('Upload error:', uploadError);
+                alert('Failed to upload image. Please try again.');
+                setLoading(false);
+                return;
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('post-media')
+                .getPublicUrl(filePath);
+
+            mediaUrls.push(publicUrl);
+        }
+
         const { error } = await supabase.from('posts').insert({
-            content,
+            content: content.trim() || null,
             user_id: user.id,
+            media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         });
 
         if (!error) {
             setSuccess(true);
             setContent('');
+            setSelectedImage(null);
+            setImagePreview(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
             router.refresh();
             setTimeout(() => {
                 setSuccess(false);
                 if (onSuccess) onSuccess();
             }, 1500);
+        } else {
+            console.error('Post error:', error);
+            alert('Failed to create post. Please try again.');
         }
         setLoading(false);
     };
@@ -60,13 +130,44 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
                 placeholder="Share what's on your heart..."
                 className="w-full p-3 rounded-xl bg-cream/50 border-none focus:ring-2 focus:ring-terracotta/20 resize-none min-h-[100px] placeholder:text-muted-foreground/70 text-black"
             />
+
+            {/* Image Preview */}
+            {imagePreview && (
+                <div className="mt-3 relative inline-block">
+                    <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-48 rounded-xl border border-border/50"
+                    />
+                    <button
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
+
             <div className="flex items-center justify-between mt-3">
-                <button className="p-2 text-muted-foreground hover:text-terracotta transition-colors rounded-full hover:bg-terracotta/10">
-                    <Image className="w-5 h-5" />
-                </button>
+                <div>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                    />
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 text-muted-foreground hover:text-terracotta transition-colors rounded-full hover:bg-terracotta/10"
+                        type="button"
+                    >
+                        <Image className="w-5 h-5" />
+                    </button>
+                </div>
                 <button
                     onClick={handleSubmit}
-                    disabled={loading || !content.trim()}
+                    disabled={loading || (!content.trim() && !selectedImage)}
                     className="px-4 py-2 bg-terracotta text-white rounded-full font-bold text-sm hover:bg-terracotta/90 transition-colors disabled:opacity-50 flex items-center gap-2 shadow-md shadow-terracotta/20"
                 >
                     <span>{loading ? 'Posting...' : 'Post'}</span>
