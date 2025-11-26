@@ -38,6 +38,8 @@ export const CommentItem = ({
 
     const isOwner = currentUserId === comment.user_id;
     const maxDepth = 3; // Limit nesting depth for UI sanity
+
+    // Constant for deleted message - must match exactly
     const DELETED_MESSAGE = 'This comment was deleted by the user who posted it';
     const isDeleted = comment.content === DELETED_MESSAGE;
 

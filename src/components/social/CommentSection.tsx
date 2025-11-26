@@ -58,8 +58,10 @@ export const CommentSection = ({ postId, isOpen }: CommentSectionProps) => {
                     if (parent) {
                         parent.replies.push(comment);
                     } else {
-                        // Orphaned comment, treat as root or ignore? 
-                        // Let's treat as root for safety
+                        // If parent is not found (shouldn't happen with cascade), 
+                        // we can either hide it or show it as root. 
+                        // Showing as root might be confusing if it was meant to be a reply.
+                        // Let's keep it as root for now but maybe we should filter it?
                         roots.push(comment);
                     }
                 } else {
