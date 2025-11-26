@@ -4,9 +4,14 @@ import { createClient } from '@/lib/supabase/client';
 import { Image, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export const CreatePost = () => {
+interface CreatePostProps {
+    onSuccess?: () => void;
+}
+
+export const CreatePost = ({ onSuccess }: CreatePostProps) => {
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const supabase = createClient();
     const router = useRouter();
 
@@ -26,14 +31,29 @@ export const CreatePost = () => {
         });
 
         if (!error) {
+            setSuccess(true);
             setContent('');
             router.refresh();
+            setTimeout(() => {
+                setSuccess(false);
+                if (onSuccess) onSuccess();
+            }, 1500);
         }
         setLoading(false);
     };
 
     return (
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-terracotta/10 mb-6">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-terracotta/10 mb-6 relative overflow-hidden">
+            {success && (
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center animate-in fade-in duration-200">
+                    <div className="text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 text-green-600">
+                            <Send className="w-6 h-6" />
+                        </div>
+                        <p className="font-bold text-green-800">Post sent successfully!</p>
+                    </div>
+                </div>
+            )}
             <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}

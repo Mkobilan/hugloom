@@ -40,7 +40,7 @@ export const ProfileActions = ({ isOwner }: ProfileActionsProps) => {
                                 Since CreatePost has its own container styling, we might want to adjust it or just use it as is.
                                 CreatePost has a margin-bottom that we might want to negate or accept.
                              */}
-                            <CreatePost />
+                            <CreatePost onSuccess={() => setIsModalOpen(false)} />
                         </div>
                     </div>
                 </div>
