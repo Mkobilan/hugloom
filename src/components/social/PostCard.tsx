@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ImageModal } from './ImageModal';
+import { ShareModal } from './ShareModal';
 
 export const PostCard = ({ post }: { post: any }) => {
     const supabase = createClient();
@@ -21,6 +22,7 @@ export const PostCard = ({ post }: { post: any }) => {
     const [isDeleted, setIsDeleted] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [showImageModal, setShowImageModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const router = useRouter();
 
     const isOwner = userId === post.user_id;
@@ -232,7 +234,10 @@ export const PostCard = ({ post }: { post: any }) => {
                         <span className="font-medium">{post.comments?.length || 0} Comments</span>
                     </button>
 
-                    <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-black/5">
+                    <button
+                        onClick={() => setShowShareModal(true)}
+                        className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-black/5"
+                    >
                         <Share2 className="w-5 h-5" />
                     </button>
                 </div>
@@ -244,6 +249,18 @@ export const PostCard = ({ post }: { post: any }) => {
                     <ImageModal
                         imageUrl={post.media_urls[0]}
                         onClose={() => setShowImageModal(false)}
+                    />
+                )
+            }
+
+            {/* Share Modal */}
+            {
+                showShareModal && (
+                    <ShareModal
+                        postId={post.id}
+                        postContent={displayContent}
+                        username={post.profiles?.username || 'anonymous'}
+                        onClose={() => setShowShareModal(false)}
                     />
                 )
             }
