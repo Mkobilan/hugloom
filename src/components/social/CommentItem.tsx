@@ -38,6 +38,8 @@ export const CommentItem = ({
 
     const isOwner = currentUserId === comment.user_id;
     const maxDepth = 3; // Limit nesting depth for UI sanity
+    const DELETED_MESSAGE = 'This comment was deleted by the user who posted it';
+    const isDeleted = comment.content === DELETED_MESSAGE;
 
     const handleLike = async () => {
         if (!currentUserId || isLikeLoading) return;
@@ -79,7 +81,11 @@ export const CommentItem = ({
 
         const { error } = await supabase
             .from('comments')
-            .delete()
+            .update({
+                content: DELETED_MESSAGE,
+                media_url: null,
+                updated_at: new Date().toISOString()
+            })
             .eq('id', comment.id);
 
         if (!error) {
@@ -153,12 +159,15 @@ export const CommentItem = ({
                                 </div>
                             </div>
                         ) : (
-                            <div className="mt-1 text-sm text-black break-words">
+                            <div className={cn(
+                                "mt-1 text-sm break-words",
+                                isDeleted ? "text-muted-foreground italic" : "text-black"
+                            )}>
                                 {comment.content}
                             </div>
                         )}
 
-                        {comment.media_url && !isEditing && (
+                        {comment.media_url && !isEditing && !isDeleted && (
                             <div className="mt-2 rounded-lg overflow-hidden border border-border/50 max-w-[200px]">
                                 <img
                                     src={comment.media_url}
@@ -169,7 +178,7 @@ export const CommentItem = ({
                             </div>
                         )}
 
-                        {isOwner && !isEditing && (
+                        {isOwner && !isEditing && !isDeleted && (
                             <div className="absolute top-2 right-2">
                                 <button
                                     onClick={() => setShowMenu(!showMenu)}
@@ -200,34 +209,36 @@ export const CommentItem = ({
                         )}
                     </div>
 
-                    <div className="flex items-center gap-4 mt-1 ml-2">
-                        <button
-                            onClick={handleLike}
-                            className={cn(
-                                "flex items-center gap-1 text-xs font-medium transition-colors",
-                                isLiked ? "text-terracotta" : "text-muted-foreground hover:text-terracotta"
-                            )}
-                        >
-                            <Heart className={cn("w-3.5 h-3.5", isLiked && "fill-current")} />
-                            {likesCount > 0 && likesCount}
-                        </button>
-
-                        {depth < maxDepth && (
+                    {!isDeleted && (
+                        <div className="flex items-center gap-4 mt-1 ml-2">
                             <button
-                                onClick={() => setIsReplying(!isReplying)}
-                                className="text-xs font-medium text-black hover:underline transition-colors"
+                                onClick={handleLike}
+                                className={cn(
+                                    "flex items-center gap-1 text-xs font-medium transition-colors",
+                                    isLiked ? "text-terracotta" : "text-muted-foreground hover:text-terracotta"
+                                )}
                             >
-                                Reply
+                                <Heart className={cn("w-3.5 h-3.5", isLiked && "fill-current")} />
+                                {likesCount > 0 && likesCount}
                             </button>
-                        )}
 
-                        <button
-                            onClick={() => setShowShareModal(true)}
-                            className="text-xs font-medium text-muted-foreground hover:text-black transition-colors flex items-center gap-1"
-                        >
-                            <Share2 className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
+                            {depth < maxDepth && (
+                                <button
+                                    onClick={() => setIsReplying(!isReplying)}
+                                    className="text-xs font-medium text-black hover:underline transition-colors"
+                                >
+                                    Reply
+                                </button>
+                            )}
+
+                            <button
+                                onClick={() => setShowShareModal(true)}
+                                className="text-xs font-medium text-muted-foreground hover:text-black transition-colors flex items-center gap-1"
+                            >
+                                <Share2 className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    )}
 
                     {isReplying && (
                         <div className="mt-3">
@@ -248,38 +259,44 @@ export const CommentItem = ({
             </div>
 
             {/* Nested Comments */}
-            {comment.replies && comment.replies.length > 0 && (
-                <div className="relative">
-                    {/* Thread line */}
-                    <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border/50 -z-10" />
-                    {comment.replies.map((reply: any) => (
-                        <CommentItem
-                            key={reply.id}
-                            comment={reply}
-                            currentUserId={currentUserId}
-                            onCommentUpdated={onCommentUpdated}
-                            depth={depth + 1}
-                        />
-                    ))}
-                </div>
-            )}
+            {
+                comment.replies && comment.replies.length > 0 && (
+                    <div className="relative">
+                        {/* Thread line */}
+                        <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border/50 -z-10" />
+                        {comment.replies.map((reply: any) => (
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                currentUserId={currentUserId}
+                                onCommentUpdated={onCommentUpdated}
+                                depth={depth + 1}
+                            />
+                        ))}
+                    </div>
+                )
+            }
 
-            {showImageModal && comment.media_url && (
-                <ImageModal
-                    imageUrl={comment.media_url}
-                    onClose={() => setShowImageModal(false)}
-                />
-            )}
+            {
+                showImageModal && comment.media_url && (
+                    <ImageModal
+                        imageUrl={comment.media_url}
+                        onClose={() => setShowImageModal(false)}
+                    />
+                )
+            }
 
-            {showShareModal && (
-                <ShareModal
-                    postId={comment.post_id}
-                    postContent={comment.content}
-                    username={comment.profiles?.username || 'anonymous'}
-                    onClose={() => setShowShareModal(false)}
-                    commentId={comment.id}
-                />
-            )}
-        </div>
+            {
+                showShareModal && (
+                    <ShareModal
+                        postId={comment.post_id}
+                        postContent={comment.content}
+                        username={comment.profiles?.username || 'anonymous'}
+                        onClose={() => setShowShareModal(false)}
+                        commentId={comment.id}
+                    />
+                )
+            }
+        </div >
     );
 };
