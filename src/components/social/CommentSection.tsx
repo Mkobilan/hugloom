@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useEffect } from 'react';
 import { CommentInput } from './CommentInput';
 import { CommentItem } from './CommentItem';
 import { Loader2 } from 'lucide-react';
+import { useComments } from '@/hooks/useComments';
 
 interface CommentSectionProps {
     postId: string;
@@ -12,74 +12,7 @@ interface CommentSectionProps {
 }
 
 export const CommentSection = ({ postId, isOpen }: CommentSectionProps) => {
-    const [comments, setComments] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-    const supabase = createClient();
-
-    const fetchComments = useCallback(async () => {
-        if (!isOpen) return;
-
-        setIsLoading(true);
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            setCurrentUserId(user?.id || null);
-
-            const { data, error } = await supabase
-                .from('comments')
-                .select(`
-                    *,
-                    profiles:user_id (
-                        username,
-                        avatar_url
-                    ),
-                    comment_reactions (
-                        user_id,
-                        type
-                    )
-                `)
-                .eq('post_id', postId)
-                .order('created_at', { ascending: true });
-
-            if (error) throw error;
-
-            // Organize into tree structure
-            const commentMap = new Map();
-            const roots: any[] = [];
-
-            data?.forEach(comment => {
-                comment.replies = [];
-                commentMap.set(comment.id, comment);
-            });
-
-            data?.forEach(comment => {
-                if (comment.parent_id) {
-                    const parent = commentMap.get(comment.parent_id);
-                    if (parent) {
-                        parent.replies.push(comment);
-                    } else {
-                        // If parent is not found (shouldn't happen with cascade), 
-                        // we can either hide it or show it as root. 
-                        // Showing as root might be confusing if it was meant to be a reply.
-                        // Let's keep it as root for now but maybe we should filter it?
-                        roots.push(comment);
-                    }
-                } else {
-                    roots.push(comment);
-                }
-            });
-
-            setComments(roots);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [postId, isOpen]);
-
-    useEffect(() => {
-        fetchComments();
-    }, [fetchComments]);
+    const { rootComments, comments, isLoading, currentUserId, refreshComments } = useComments(postId);
 
     // Scroll to comment if deep linked
     useEffect(() => {
@@ -107,7 +40,7 @@ export const CommentSection = ({ postId, isOpen }: CommentSectionProps) => {
             <div className="mb-6">
                 <CommentInput
                     postId={postId}
-                    onCommentAdded={fetchComments}
+                    onCommentAdded={refreshComments}
                 />
             </div>
 
@@ -117,17 +50,17 @@ export const CommentSection = ({ postId, isOpen }: CommentSectionProps) => {
                 </div>
             ) : (
                 <div className="space-y-1">
-                    {comments.length === 0 ? (
+                    {rootComments.length === 0 ? (
                         <p className="text-center text-muted-foreground text-sm py-4">
                             No comments yet. Be the first to share your thoughts!
                         </p>
                     ) : (
-                        comments.map(comment => (
+                        rootComments.map(comment => (
                             <CommentItem
                                 key={comment.id}
                                 comment={comment}
                                 currentUserId={currentUserId}
-                                onCommentUpdated={fetchComments}
+                                onCommentUpdated={refreshComments}
                             />
                         ))
                     )}

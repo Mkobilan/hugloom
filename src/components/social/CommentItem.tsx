@@ -6,6 +6,7 @@ import { Heart, MessageCircle, MoreHorizontal, Trash2, Edit2, X, Check, CornerDo
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { CommentInput } from './CommentInput';
 import { ImageModal } from './ImageModal';
 import { ShareModal } from './ShareModal';
@@ -15,14 +16,19 @@ interface CommentItemProps {
     currentUserId: string | null;
     onCommentUpdated: () => void;
     depth?: number;
+    isThreadView?: boolean;
+    isHero?: boolean;
 }
 
 export const CommentItem = ({
     comment,
     currentUserId,
     onCommentUpdated,
-    depth = 0
+    depth = 0,
+    isThreadView = false,
+    isHero = false
 }: CommentItemProps) => {
+    const router = useRouter();
     const supabase = createClient();
     const [isReplying, setIsReplying] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -110,7 +116,14 @@ export const CommentItem = ({
     };
 
     return (
-        <div id={`comment-${comment.id}`} className={cn("group", depth > 0 && "ml-4 sm:ml-8")}>
+        <div
+            id={`comment-${comment.id}`}
+            className={cn(
+                "group",
+                !isThreadView && depth > 0 && "ml-4 sm:ml-8",
+                isHero && "text-lg"
+            )}
+        >
             <div className="flex gap-3 py-3">
                 <Link href={`/u/${comment.profiles?.username}`} className="flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-sm overflow-hidden">
@@ -161,10 +174,18 @@ export const CommentItem = ({
                                 </div>
                             </div>
                         ) : (
-                            <div className={cn(
-                                "mt-1 text-sm break-words",
-                                isDeleted ? "text-muted-foreground italic" : "text-black"
-                            )}>
+                            <div
+                                className={cn(
+                                    "mt-1 break-words cursor-pointer",
+                                    isDeleted ? "text-muted-foreground italic text-sm" : "text-black",
+                                    isHero ? "text-lg" : "text-sm"
+                                )}
+                                onClick={() => {
+                                    if (!isDeleted && !isEditing) {
+                                        router.push(`/thread/${comment.id}`);
+                                    }
+                                }}
+                            >
                                 {comment.content}
                             </div>
                         )}
@@ -227,9 +248,22 @@ export const CommentItem = ({
                             {depth < maxDepth && (
                                 <button
                                     onClick={() => setIsReplying(!isReplying)}
-                                    className="text-xs font-medium text-black hover:underline transition-colors"
+                                    className="text-xs font-medium text-black hover:underline transition-colors flex items-center gap-1"
                                 >
-                                    Reply
+                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    {comment.replies?.length > 0 && comment.replies.length}
+                                    <span className="hidden sm:inline">Reply</span>
+                                </button>
+                            )}
+
+                            {/* Show reply count/link even if max depth, to drill down */}
+                            {depth >= maxDepth && !isThreadView && (
+                                <button
+                                    onClick={() => router.push(`/thread/${comment.id}`)}
+                                    className="text-xs font-medium text-muted-foreground hover:text-black transition-colors flex items-center gap-1"
+                                >
+                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    {comment.replies?.length > 0 && comment.replies.length}
                                 </button>
                             )}
 
@@ -260,9 +294,9 @@ export const CommentItem = ({
                 </div>
             </div>
 
-            {/* Nested Comments */}
+            {/* Nested Comments - Only show if NOT in thread view (thread view handles its own nesting) */}
             {
-                comment.replies && comment.replies.length > 0 && (
+                !isThreadView && comment.replies && comment.replies.length > 0 && (
                     <div className="relative">
                         {/* Thread line */}
                         <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border/50 -z-10" />
