@@ -76,7 +76,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 user_id,
                 type
             ),
-            comments:post_id (
+            comments (
                 id
             )
         `)
