@@ -44,7 +44,7 @@ export const TopBar = () => {
     };
 
     return (
-        <header className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-sm sticky top-0 z-10 border-b border-white/20 mb-6">
+        <header className="flex items-center justify-between p-4 bg-background backdrop-blur-sm sticky top-0 z-10 border-b border-white/20 mb-6">
             <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-terracotta flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-terracotta/20">
                     <HeartHandshake className="w-6 h-6" />

@@ -2,7 +2,7 @@
 "use client";
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -72,8 +72,8 @@ export default function SignupPage() {
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 font-sans text-foreground">
             <div className="mb-8 flex flex-col items-center">
-                <div className="p-4 bg-terracotta/10 rounded-full mb-4">
-                    <img src="/hugloom_logo.png" alt="HugLoom Logo" className="w-12 h-12 object-contain" />
+                <div className="p-4 bg-terracotta rounded-full mb-4 shadow-lg shadow-terracotta/20">
+                    <HeartHandshake className="w-12 h-12 text-white" />
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-terracotta">HugLoom</h1>
                 <p className="text-muted-foreground mt-2">Someone's light is always on for you.</p>
