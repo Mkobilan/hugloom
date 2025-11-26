@@ -127,7 +127,7 @@ export const PostCard = ({ post }: { post: any }) => {
                     </div>
                 </Link>
                 <div className="flex-1">
-                    <h3 className="font-bold text-sm text-foreground">{post.profiles?.full_name || 'Anonymous'}</h3>
+                    <h3 className="font-bold text-sm text-black">@{post.profiles?.username || 'anonymous'}</h3>
                     <p className="text-xs text-muted-foreground" suppressHydrationWarning>
                         {post.created_at ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true }) : 'Just now'}
                     </p>

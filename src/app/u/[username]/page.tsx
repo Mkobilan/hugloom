@@ -96,7 +96,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                     )}
 
                     {profile.bio && (
-                        <p className="text-foreground/80 max-w-md mx-auto mb-6">
+                        <p className="text-black max-w-md mx-auto mb-6 font-medium">
                             {profile.bio}
                         </p>
                     )}
