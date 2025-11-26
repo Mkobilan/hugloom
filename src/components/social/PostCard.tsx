@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export const PostCard = ({ post }: { post: any }) => {
     const supabase = createClient();
@@ -112,9 +113,19 @@ export const PostCard = ({ post }: { post: any }) => {
     return (
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-terracotta/10 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center gap-3 mb-3 relative">
-                <div className="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-lg">
-                    {post.profiles?.username?.[0]?.toUpperCase() || '?'}
-                </div>
+                <Link href={`/u/${post.profiles?.username}`}>
+                    <div className="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-lg overflow-hidden hover:opacity-80 transition-opacity">
+                        {post.profiles?.avatar_url ? (
+                            <img
+                                src={post.profiles.avatar_url}
+                                alt={post.profiles.username || 'User'}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            post.profiles?.username?.[0]?.toUpperCase() || '?'
+                        )}
+                    </div>
+                </Link>
                 <div className="flex-1">
                     <h3 className="font-bold text-sm text-foreground">{post.profiles?.full_name || 'Anonymous'}</h3>
                     <p className="text-xs text-muted-foreground" suppressHydrationWarning>
