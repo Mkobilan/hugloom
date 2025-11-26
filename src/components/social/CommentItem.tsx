@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle, MoreHorizontal, Trash2, Edit2, X, Check, CornerDownRight } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Trash2, Edit2, X, Check, CornerDownRight, Share2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { CommentInput } from './CommentInput';
 import { ImageModal } from './ImageModal';
+import { ShareModal } from './ShareModal';
 
 interface CommentItemProps {
     comment: any;
@@ -33,6 +34,7 @@ export const CommentItem = ({
     const [likesCount, setLikesCount] = useState(comment.comment_reactions?.length || 0);
     const [isLikeLoading, setIsLikeLoading] = useState(false);
     const [showImageModal, setShowImageModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     const isOwner = currentUserId === comment.user_id;
     const maxDepth = 3; // Limit nesting depth for UI sanity
@@ -132,7 +134,7 @@ export const CommentItem = ({
                                 <textarea
                                     value={editContent}
                                     onChange={(e) => setEditContent(e.target.value)}
-                                    className="w-full p-2 rounded-lg border border-border text-sm focus:ring-2 focus:ring-terracotta/20"
+                                    className="w-full p-2 rounded-lg border border-border text-sm focus:ring-2 focus:ring-terracotta/20 text-black"
                                     rows={2}
                                 />
                                 <div className="flex justify-end gap-2 mt-2">
@@ -213,11 +215,18 @@ export const CommentItem = ({
                         {depth < maxDepth && (
                             <button
                                 onClick={() => setIsReplying(!isReplying)}
-                                className="text-xs font-medium text-muted-foreground hover:text-black transition-colors"
+                                className="text-xs font-medium text-black hover:underline transition-colors"
                             >
                                 Reply
                             </button>
                         )}
+
+                        <button
+                            onClick={() => setShowShareModal(true)}
+                            className="text-xs font-medium text-muted-foreground hover:text-black transition-colors flex items-center gap-1"
+                        >
+                            <Share2 className="w-3.5 h-3.5" />
+                        </button>
                     </div>
 
                     {isReplying && (
@@ -259,6 +268,15 @@ export const CommentItem = ({
                 <ImageModal
                     imageUrl={comment.media_url}
                     onClose={() => setShowImageModal(false)}
+                />
+            )}
+
+            {showShareModal && (
+                <ShareModal
+                    postId={comment.post_id}
+                    postContent={comment.content}
+                    username={comment.profiles?.username || 'anonymous'}
+                    onClose={() => setShowShareModal(false)}
                 />
             )}
         </div>
