@@ -48,6 +48,24 @@ END $$;
 -- Update policies for comments (ensure they exist)
 DO $$ 
 BEGIN
+    -- Policy for viewing comments
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'comments' AND policyname = 'Comments are viewable by everyone'
+    ) THEN
+        CREATE POLICY "Comments are viewable by everyone"
+          ON comments FOR SELECT
+          USING ( true );
+    END IF;
+
+    -- Policy for creating comments
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'comments' AND policyname = 'Users can create comments'
+    ) THEN
+        CREATE POLICY "Users can create comments"
+          ON comments FOR INSERT
+          WITH CHECK ( auth.uid() = user_id );
+    END IF;
+
     -- We assume basic policies might exist, but let's ensure the update policy is there
     IF NOT EXISTS (
         SELECT 1 FROM pg_policies WHERE tablename = 'comments' AND policyname = 'Users can update own comments'

@@ -132,7 +132,7 @@ export const CommentInput = ({
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder={placeholder}
-                        className="w-full min-h-[44px] max-h-32 py-2.5 pl-4 pr-12 bg-slate-50 border border-border rounded-2xl focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/50 resize-none text-sm"
+                        className="w-full min-h-[44px] max-h-32 py-2.5 pl-4 pr-12 bg-slate-50 border border-border rounded-2xl focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta/50 resize-none text-sm text-black placeholder:text-muted-foreground"
                         rows={1}
                         autoFocus={autoFocus}
                         onKeyDown={(e) => {
