@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { MoreHorizontal, Edit2, Trash2, Smile } from 'lucide-react'
@@ -39,8 +40,13 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
+    const router = useRouter()
     const [showActions, setShowActions] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
+
+    const handleProfileClick = () => {
+        router.push(`/u/${message.sender.username}`)
+    }
 
     const handleDelete = async () => {
         if (confirm('Are you sure you want to delete this message?')) {
@@ -84,7 +90,10 @@ export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
             <div className={cn("flex max-w-[70%] flex-col", isOwn ? "items-end" : "items-start")}>
                 <div className="flex items-end gap-2">
                     {!isOwn && (
-                        <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 mb-1">
+                        <div
+                            onClick={handleProfileClick}
+                            className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 mb-1 cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all"
+                        >
                             {message.sender.avatar_url ? (
                                 <img src={message.sender.avatar_url} alt={message.sender.username} className="w-full h-full object-cover" />
                             ) : (
