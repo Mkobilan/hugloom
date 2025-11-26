@@ -31,7 +31,7 @@ export const ShareModal = ({ postId, postContent, username, onClose }: ShareModa
 
     // Generate share URL (using current domain)
     const shareUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/u/${username}?post=${postId}`
+        ? `${window.location.origin}/post/${postId}`
         : '';
 
     // Truncate content for sharing
