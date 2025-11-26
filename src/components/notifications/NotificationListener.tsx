@@ -85,29 +85,53 @@ export function NotificationListener() {
 
                         // Play sound
                         try {
-                            const audio = new Audio('/notification.mp3') // You might need to add this file or use a base64 string
-                            audio.play()
+                            // Simple notification beep (base64)
+                            const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU')
+                            await audio.play().catch(e => console.log('Audio play failed (user interaction needed):', e))
                         } catch (e) {
-                            console.error('Error playing sound', e)
+                            console.error('Error initializing audio', e)
                         }
 
                         // Send notification
                         if (Notification.permission === 'granted') {
                             try {
-                                const notification = new Notification(title, {
-                                    body: body.length > 50 ? body.substring(0, 50) + '...' : body,
-                                    icon: '/icon.png', // Assuming we have an icon, or fallback to default
-                                    tag: `message-${newMessage.conversation_id}`, // Group notifications by conversation
-                                    silent: false // Request sound if browser supports it
-                                })
-
-                                notification.onclick = () => {
-                                    window.focus()
-                                    router.push(`/messages/${newMessage.conversation_id}`)
-                                    notification.close()
+                                // Check if service worker is ready (better for mobile)
+                                if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+                                    try {
+                                        const registration = await navigator.serviceWorker.ready
+                                        registration.showNotification(title, {
+                                            body: body.length > 50 ? body.substring(0, 50) + '...' : body,
+                                            icon: '/hugloom_logo.png',
+                                            tag: `message-${newMessage.conversation_id}`,
+                                            silent: false
+                                        })
+                                    } catch (swError) {
+                                        console.error('Service Worker notification failed, falling back to standard API', swError)
+                                        // Fallback logic below
+                                        throw swError
+                                    }
+                                } else {
+                                    throw new Error('Service Worker not ready')
                                 }
                             } catch (e) {
-                                console.error('Error creating notification object:', e)
+                                // Fallback to standard Notification API
+                                console.log('Using standard Notification API fallback')
+                                try {
+                                    const notification = new Notification(title, {
+                                        body: body.length > 50 ? body.substring(0, 50) + '...' : body,
+                                        icon: '/hugloom_logo.png',
+                                        tag: `message-${newMessage.conversation_id}`, // Group notifications by conversation
+                                        silent: false // Request sound if browser supports it
+                                    })
+
+                                    notification.onclick = () => {
+                                        window.focus()
+                                        router.push(`/messages/${newMessage.conversation_id}`)
+                                        notification.close()
+                                    }
+                                } catch (notificationError) {
+                                    console.error('Standard Notification API failed:', notificationError)
+                                }
                             }
                         } else {
                             console.log('Notification permission not granted:', Notification.permission)
