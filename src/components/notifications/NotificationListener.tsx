@@ -7,16 +7,6 @@ import { createClient } from '@/lib/supabase/client'
 export function NotificationListener() {
     const pathname = usePathname()
     const router = useRouter()
-        ```javascript
-'use client'
-
-import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-
-export function NotificationListener() {
-    const pathname = usePathname()
-    const router = useRouter()
     const supabase = createClient()
     const [userId, setUserId] = useState<string | null>(null)
 
@@ -67,7 +57,7 @@ export function NotificationListener() {
 
                     // Check if we are already in this conversation
                     // Path format: /messages/[conversationId]
-                    const isInConversation = pathname === `/ messages / ${ newMessage.conversation_id }`
+                    const isInConversation = pathname === `/messages/${newMessage.conversation_id}`
 
                     // If we are in the conversation and the window is focused, don't notify
                     if (isInConversation && document.visibilityState === 'visible') {
@@ -88,7 +78,7 @@ export function NotificationListener() {
                     }
 
                     if (sender) {
-                        const title = `New message from ${ sender.full_name || sender.username } `
+                        const title = `New message from ${sender.full_name || sender.username}`
                         const body = newMessage.content || (newMessage.media_url ? 'Sent an attachment' : 'Sent a message')
 
                         console.log('Triggering notification:', title)
@@ -107,13 +97,13 @@ export function NotificationListener() {
                                 const notification = new Notification(title, {
                                     body: body.length > 50 ? body.substring(0, 50) + '...' : body,
                                     icon: '/icon.png', // Assuming we have an icon, or fallback to default
-                                    tag: `message - ${ newMessage.conversation_id } `, // Group notifications by conversation
+                                    tag: `message-${newMessage.conversation_id}`, // Group notifications by conversation
                                     silent: false // Request sound if browser supports it
                                 })
 
                                 notification.onclick = () => {
                                     window.focus()
-                                    router.push(`/ messages / ${ newMessage.conversation_id } `)
+                                    router.push(`/messages/${newMessage.conversation_id}`)
                                     notification.close()
                                 }
                             } catch (e) {
@@ -136,4 +126,3 @@ export function NotificationListener() {
 
     return null // This component doesn't render anything
 }
-```
