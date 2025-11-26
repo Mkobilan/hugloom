@@ -5,6 +5,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TaskModal } from './TaskModal';
+import { DayTasksModal } from './DayTasksModal';
 
 interface CalendarViewProps {
     events: any[];
@@ -18,6 +19,9 @@ export const CalendarView = ({ events, medications }: CalendarViewProps) => {
     const [editingTask, setEditingTask] = useState<any>(null);
     const [taskType, setTaskType] = useState<'medication' | 'personal_care' | 'appointment' | 'task'>('medication');
     const [tooltip, setTooltip] = useState<{ x: number; y: number; title: string; description: string } | null>(null);
+    const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+    const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+    const [selectedDayTasks, setSelectedDayTasks] = useState<any[]>([]);
 
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
@@ -125,8 +129,13 @@ export const CalendarView = ({ events, medications }: CalendarViewProps) => {
                         return (
                             <div
                                 key={day.toISOString()}
+                                onClick={() => {
+                                    setSelectedDay(day);
+                                    setSelectedDayTasks(tasks);
+                                    setIsDayModalOpen(true);
+                                }}
                                 className={cn(
-                                    "min-h-[140px] bg-white p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50",
+                                    "min-h-[140px] bg-white p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50 cursor-pointer",
                                     !isCurrentMonth && "bg-gray-50/50 text-gray-400"
                                 )}
                             >
@@ -194,6 +203,13 @@ export const CalendarView = ({ events, medications }: CalendarViewProps) => {
                 }}
                 taskType={taskType}
                 editingTask={editingTask}
+            />
+
+            <DayTasksModal
+                isOpen={isDayModalOpen}
+                onClose={() => setIsDayModalOpen(false)}
+                selectedDay={selectedDay}
+                tasks={selectedDayTasks}
             />
         </div>
     );

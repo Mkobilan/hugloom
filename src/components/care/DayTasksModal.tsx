@@ -1,0 +1,135 @@
+"use client";
+import { format } from 'date-fns';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Task {
+    id: string;
+    title: string;
+    description?: string;
+    task_category: string;
+    start_time: string;
+    isMedication?: boolean;
+    time?: string;
+}
+
+interface DayTasksModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedDay: Date | null;
+    tasks: Task[];
+}
+
+export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksModalProps) => {
+    if (!isOpen || !selectedDay) return null;
+
+    const getEventColor = (category: string) => {
+        switch (category) {
+            case 'medication': return 'bg-terracotta text-white';
+            case 'personal_care': return 'bg-sage text-white';
+            case 'appointment': return 'bg-slate-blue text-white';
+            case 'task': return 'bg-mustard text-gray-900';
+            default: return 'bg-sage text-white';
+        }
+    };
+
+    const getCategoryLabel = (category: string) => {
+        switch (category) {
+            case 'medication': return 'Medication';
+            case 'personal_care': return 'Personal Care';
+            case 'appointment': return 'Appointment';
+            case 'task': return 'Task';
+            default: return 'Task';
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={onClose}
+            />
+
+            {/* Modal */}
+            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div>
+                        <h2 className="font-heading font-bold text-2xl text-gray-900">
+                            {format(selectedDay, 'EEEE, MMMM d, yyyy')}
+                        </h2>
+                        <p className="text-sm text-gray-600 mt-1">
+                            {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'} scheduled
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                        <X className="w-6 h-6 text-gray-600" />
+                    </button>
+                </div>
+
+                {/* Content - Scrollable */}
+                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    {tasks.length === 0 ? (
+                        <div className="text-center py-12">
+                            <p className="text-gray-500 text-lg">No tasks scheduled for this day</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {tasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    className="bg-gray-50 rounded-2xl p-4 border border-gray-200 hover:border-gray-300 transition-colors"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        {/* Time */}
+                                        <div className="flex-shrink-0 text-center min-w-[80px]">
+                                            <div className="font-bold text-lg text-gray-900">
+                                                {task.isMedication
+                                                    ? task.time
+                                                    : format(new Date(task.start_time), 'h:mm a')}
+                                            </div>
+                                        </div>
+
+                                        {/* Task Details */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h3 className="font-semibold text-gray-900 text-lg">
+                                                    {task.title}
+                                                </h3>
+                                                <span className={cn(
+                                                    "px-2.5 py-0.5 rounded-full text-xs font-medium",
+                                                    getEventColor(task.task_category)
+                                                )}>
+                                                    {getCategoryLabel(task.task_category)}
+                                                </span>
+                                            </div>
+                                            {task.description && (
+                                                <p className="text-gray-700 text-sm leading-relaxed">
+                                                    {task.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-gray-200">
+                    <button
+                        onClick={onClose}
+                        className="w-full bg-terracotta text-white font-semibold py-3 px-6 rounded-full hover:bg-terracotta/90 transition-colors"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
