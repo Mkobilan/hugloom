@@ -102,7 +102,7 @@ export const CommentItem = ({
     };
 
     return (
-        <div className={cn("group", depth > 0 && "ml-4 sm:ml-8")}>
+        <div id={`comment-${comment.id}`} className={cn("group", depth > 0 && "ml-4 sm:ml-8")}>
             <div className="flex gap-3 py-3">
                 <Link href={`/u/${comment.profiles?.username}`} className="flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-sm overflow-hidden">
@@ -277,6 +277,7 @@ export const CommentItem = ({
                     postContent={comment.content}
                     username={comment.profiles?.username || 'anonymous'}
                     onClose={() => setShowShareModal(false)}
+                    commentId={comment.id}
                 />
             )}
         </div>

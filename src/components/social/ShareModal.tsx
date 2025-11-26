@@ -7,9 +7,10 @@ interface ShareModalProps {
     postContent: string;
     username: string;
     onClose: () => void;
+    commentId?: string;
 }
 
-export const ShareModal = ({ postId, postContent, username, onClose }: ShareModalProps) => {
+export const ShareModal = ({ postId, postContent, username, onClose, commentId }: ShareModalProps) => {
     const [copied, setCopied] = useState(false);
 
     // Close on Escape key
@@ -31,7 +32,7 @@ export const ShareModal = ({ postId, postContent, username, onClose }: ShareModa
 
     // Generate share URL (using current domain)
     const shareUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/post/${postId}`
+        ? `${window.location.origin}/post/${postId}${commentId ? `#comment-${commentId}` : ''}`
         : '';
 
     // Truncate content for sharing
