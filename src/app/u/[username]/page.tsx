@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ProfileActions } from '@/components/social/ProfileActions'
 import { FollowButton } from '@/components/social/FollowButton'
 import { FollowCounts } from '../../../components/social/FollowCounts'
+import { ChatButton } from '@/components/chat/ChatButton'
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const supabase = await createClient()
@@ -110,9 +111,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                     {!isOwner && (
                         <div className="flex justify-center gap-3">
                             <FollowButton userId={profile.id} />
-                            <button className="px-6 py-2 bg-white text-gray-900 border border-border rounded-full font-bold text-sm hover:bg-cream transition-colors">
-                                Message
-                            </button>
+                            <ChatButton userId={profile.id} />
                         </div>
                     )}
                 </div>

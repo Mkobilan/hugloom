@@ -1,23 +1,40 @@
 import { AppLayout } from '@/components/layout/AppLayout'
-import { MessageCircle } from 'lucide-react'
+import { ChatList } from '@/components/chat/ChatList'
+import { getConversations } from './actions'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
-export default function MessagesPage() {
+export default async function MessagesPage() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect('/login')
+    }
+
+    const conversations = await getConversations()
+
     return (
         <AppLayout>
-            <div className="max-w-2xl mx-auto h-full flex flex-col">
-                <h1 className="text-2xl font-heading font-bold text-terracotta mb-6">Messages</h1>
+            <div className="max-w-4xl mx-auto h-[calc(100vh-120px)] flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-2xl font-heading font-bold text-terracotta">Messages</h1>
+                </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white rounded-2xl border border-dashed border-terracotta/20">
-                    <div className="p-4 bg-sage/10 rounded-full mb-4 text-sage">
-                        <MessageCircle className="w-12 h-12" />
+                <div className="flex-1 bg-[#3C3434] rounded-3xl shadow-sm border border-border overflow-hidden flex flex-col">
+                    <div className="p-4 border-b border-border bg-[#2C2424]">
+                        <h2 className="font-bold text-white">Recent Conversations</h2>
                     </div>
-                    <h3 className="font-bold text-lg mb-2">No messages yet</h3>
-                    <p className="text-muted-foreground mb-6">Start a conversation with your care circle or local support group.</p>
-                    <button className="px-6 py-3 bg-terracotta text-white rounded-full font-bold shadow-lg hover:bg-terracotta/90 transition-colors">
-                        Start New Chat
-                    </button>
+
+                    <div className="flex-1 overflow-y-auto p-2">
+                        <ChatList
+                            initialConversations={conversations}
+                            currentUserId={user.id}
+                        />
+                    </div>
                 </div>
             </div>
         </AppLayout>
     )
 }
+
