@@ -79,6 +79,25 @@ export const CommentSection = ({ postId, isOpen }: CommentSectionProps) => {
         fetchComments();
     }, [fetchComments]);
 
+    // Scroll to comment if deep linked
+    useEffect(() => {
+        if (!isLoading && comments.length > 0 && typeof window !== 'undefined') {
+            const hash = window.location.hash;
+            if (hash.startsWith('#comment-')) {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    const element = document.querySelector(hash);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add a highlight effect
+                        element.classList.add('bg-terracotta/5');
+                        setTimeout(() => element.classList.remove('bg-terracotta/5'), 2000);
+                    }
+                }, 100);
+            }
+        }
+    }, [isLoading, comments]);
+
     if (!isOpen) return null;
 
     return (

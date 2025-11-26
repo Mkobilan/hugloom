@@ -40,7 +40,15 @@ export const PostCard = ({ post }: { post: any }) => {
             }
         };
         getUser();
+        getUser();
     }, [post.reactions]);
+
+    // Check for deep link to comment
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.hash.startsWith('#comment-')) {
+            setShowComments(true);
+        }
+    }, []);
 
     const handleLike = async () => {
         if (!userId || isLikeLoading) return;
