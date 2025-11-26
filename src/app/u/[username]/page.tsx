@@ -5,6 +5,8 @@ import { MapPin, ShoppingBag, MessageCircle } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ProfileActions } from '@/components/social/ProfileActions'
+import { FollowButton } from '@/components/social/FollowButton'
+import { FollowCounts } from '@/components/social/FollowCounts'
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const supabase = await createClient()
@@ -86,7 +88,10 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                     <h1 className="text-2xl font-bold text-gray-900 mb-1">
                         {profile.full_name || profile.username}
                     </h1>
-                    <p className="text-gray-700 font-medium mb-4">@{profile.username}</p>
+                    <p className="text-gray-700 font-medium mb-2">@{profile.username}</p>
+
+                    {/* Follower/Following Counts */}
+                    <FollowCounts userId={profile.id} />
 
                     {profile.location && (
                         <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-4">
@@ -101,14 +106,15 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                         </p>
                     )}
 
-                    <div className="flex justify-center gap-3">
-                        <button className="px-6 py-2 bg-slate-blue text-white rounded-full font-bold text-sm hover:bg-slate-blue/90 transition-colors shadow-md shadow-slate-blue/20">
-                            Connect
-                        </button>
-                        <button className="px-6 py-2 bg-white text-gray-900 border border-border rounded-full font-bold text-sm hover:bg-cream transition-colors">
-                            Message
-                        </button>
-                    </div>
+                    {/* Action Buttons - Only show Follow button if not owner */}
+                    {!isOwner && (
+                        <div className="flex justify-center gap-3">
+                            <FollowButton userId={profile.id} />
+                            <button className="px-6 py-2 bg-white text-gray-900 border border-border rounded-full font-bold text-sm hover:bg-cream transition-colors">
+                                Message
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Marketplace Items */}

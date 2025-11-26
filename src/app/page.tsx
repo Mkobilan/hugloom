@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PostCard } from '@/components/social/PostCard';
+import { Greeting } from '@/components/home/Greeting';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
@@ -43,31 +44,11 @@ export default async function Home() {
     .order('created_at', { ascending: false })
     .limit(5); // Limit to 5 latest posts for the home page
 
-  // Get time-based greeting
-  const getGreeting = () => {
-    // Note: This uses server time, which might differ from user time.
-    // For a simple greeting, this is usually acceptable, or we could do it client-side.
-    // Given the requirement for a server component, we'll stick to server time or a generic greeting if needed.
-    // To be safe with hydration if we were mixing, but here it's all server rendered initially.
-    // However, `new Date()` on server is UTC usually. Let's just use it.
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
-
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto">
         {/* Greeting Section */}
-        <section className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <h2 className="text-2xl font-heading font-bold text-terracotta mb-2">
-            {`${getGreeting()}, ${username} ☕`}
-          </h2>
-          <p className="text-muted-foreground font-medium">
-            14 caregivers have sent you hugs today.
-          </p>
-        </section>
+        <Greeting username={username} />
 
         {/* Public Feed (Main Content) */}
         <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
