@@ -135,7 +135,7 @@ export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
 
                         <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-white/70">
                             {message.is_edited && <span>(edited)</span>}
-                            <span>{format(new Date(message.created_at), 'h:mm a')}</span>
+                            <span suppressHydrationWarning>{format(new Date(message.created_at), 'h:mm a')}</span>
                         </div>
 
                         {/* Reactions Display */}

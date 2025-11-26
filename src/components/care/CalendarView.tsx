@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
@@ -14,7 +14,12 @@ interface CalendarViewProps {
 
 export const CalendarView = ({ events, medications }: CalendarViewProps) => {
     const router = useRouter();
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState<Date | null>(null);
+
+    useEffect(() => {
+        setCurrentDate(new Date());
+    }, []);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<any>(null);
     const [taskType, setTaskType] = useState<'medication' | 'personal_care' | 'appointment' | 'task'>('medication');
@@ -22,6 +27,10 @@ export const CalendarView = ({ events, medications }: CalendarViewProps) => {
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [selectedDay, setSelectedDay] = useState<Date | null>(null);
     const [selectedDayTasks, setSelectedDayTasks] = useState<any[]>([]);
+
+    if (!currentDate) {
+        return <div className="h-[600px] bg-white rounded-3xl animate-pulse" />;
+    }
 
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
