@@ -95,43 +95,20 @@ export function NotificationListener() {
                         // Send notification
                         if (Notification.permission === 'granted') {
                             try {
-                                // Check if service worker is ready (better for mobile)
-                                if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
-                                    try {
-                                        const registration = await navigator.serviceWorker.ready
-                                        registration.showNotification(title, {
-                                            body: body.length > 50 ? body.substring(0, 50) + '...' : body,
-                                            icon: '/hugloom_logo.png',
-                                            tag: `message-${newMessage.conversation_id}`,
-                                            silent: false
-                                        })
-                                    } catch (swError) {
-                                        console.error('Service Worker notification failed, falling back to standard API', swError)
-                                        // Fallback logic below
-                                        throw swError
-                                    }
-                                } else {
-                                    throw new Error('Service Worker not ready')
+                                const notification = new Notification(title, {
+                                    body: body.length > 50 ? body.substring(0, 50) + '...' : body,
+                                    icon: '/hugloom_logo.png',
+                                    tag: `message-${newMessage.conversation_id}`, // Group notifications by conversation
+                                    silent: false // Request sound if browser supports it
+                                })
+
+                                notification.onclick = () => {
+                                    window.focus()
+                                    router.push(`/messages/${newMessage.conversation_id}`)
+                                    notification.close()
                                 }
                             } catch (e) {
-                                // Fallback to standard Notification API
-                                console.log('Using standard Notification API fallback')
-                                try {
-                                    const notification = new Notification(title, {
-                                        body: body.length > 50 ? body.substring(0, 50) + '...' : body,
-                                        icon: '/hugloom_logo.png',
-                                        tag: `message-${newMessage.conversation_id}`, // Group notifications by conversation
-                                        silent: false // Request sound if browser supports it
-                                    })
-
-                                    notification.onclick = () => {
-                                        window.focus()
-                                        router.push(`/messages/${newMessage.conversation_id}`)
-                                        notification.close()
-                                    }
-                                } catch (notificationError) {
-                                    console.error('Standard Notification API failed:', notificationError)
-                                }
+                                console.error('Error creating notification object:', e)
                             }
                         } else {
                             console.log('Notification permission not granted:', Notification.permission)
@@ -147,6 +124,24 @@ export function NotificationListener() {
             supabase.removeChannel(channel)
         }
     }, [userId, pathname, router, supabase])
+
+    // Unlock audio on first user interaction
+    useEffect(() => {
+        const unlockAudio = () => {
+            const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU')
+            audio.play().catch(() => { })
+            document.removeEventListener('click', unlockAudio)
+            document.removeEventListener('touchstart', unlockAudio)
+        }
+
+        document.addEventListener('click', unlockAudio)
+        document.addEventListener('touchstart', unlockAudio)
+
+        return () => {
+            document.removeEventListener('click', unlockAudio)
+            document.removeEventListener('touchstart', unlockAudio)
+        }
+    }, [])
 
     return null // This component doesn't render anything
 }
