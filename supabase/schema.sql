@@ -116,13 +116,32 @@ create table public.comments (
   id uuid default uuid_generate_v4() primary key,
   post_id uuid references public.posts(id) on delete cascade,
   user_id uuid references public.profiles(id) not null,
+  parent_id uuid references public.comments(id) on delete cascade, -- For nested comments
   content text not null,
-  created_at timestamptz default now()
+  media_url text, -- For photo comments
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 alter table public.comments enable row level security;
 
--- REACTIONS
+create policy "Comments are viewable by everyone"
+  on comments for select
+  using ( true );
+
+create policy "Users can create comments"
+  on comments for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update own comments"
+  on comments for update
+  using ( auth.uid() = user_id );
+
+create policy "Users can delete own comments"
+  on comments for delete
+  using ( auth.uid() = user_id );
+
+-- REACTIONS (Post Likes)
 create table public.reactions (
   id uuid default uuid_generate_v4() primary key,
   post_id uuid references public.posts(id) on delete cascade,
@@ -133,6 +152,42 @@ create table public.reactions (
 );
 
 alter table public.reactions enable row level security;
+
+create policy "Reactions are viewable by everyone"
+  on reactions for select
+  using ( true );
+
+create policy "Users can create reactions"
+  on reactions for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can delete own reactions"
+  on reactions for delete
+  using ( auth.uid() = user_id );
+
+-- COMMENT REACTIONS (Comment Likes/Hugs)
+create table public.comment_reactions (
+  id uuid default uuid_generate_v4() primary key,
+  comment_id uuid references public.comments(id) on delete cascade,
+  user_id uuid references public.profiles(id) not null,
+  type text not null default 'hug',
+  created_at timestamptz default now(),
+  unique(comment_id, user_id)
+);
+
+alter table public.comment_reactions enable row level security;
+
+create policy "Comment reactions are viewable by everyone"
+  on comment_reactions for select
+  using ( true );
+
+create policy "Users can create comment reactions"
+  on comment_reactions for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can delete own comment reactions"
+  on comment_reactions for delete
+  using ( auth.uid() = user_id );
 
 -- CALENDAR EVENTS
 create table public.calendar_events (

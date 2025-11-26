@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ImageModal } from './ImageModal';
 import { ShareModal } from './ShareModal';
+import { CommentSection } from './CommentSection';
 
 export const PostCard = ({ post }: { post: any }) => {
     const supabase = createClient();
@@ -23,6 +24,7 @@ export const PostCard = ({ post }: { post: any }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [showImageModal, setShowImageModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [showComments, setShowComments] = useState(false);
     const router = useRouter();
 
     const isOwner = userId === post.user_id;
@@ -227,8 +229,17 @@ export const PostCard = ({ post }: { post: any }) => {
                         <span className="font-medium">{likesCount} Hugs</span>
                     </button>
 
-                    <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-sage transition-colors group">
-                        <div className="p-1.5 rounded-full group-hover:bg-sage/10 transition-colors">
+                    <button
+                        onClick={() => setShowComments(!showComments)}
+                        className={cn(
+                            "flex items-center gap-1.5 text-sm transition-colors group",
+                            showComments ? "text-sage" : "text-muted-foreground hover:text-sage"
+                        )}
+                    >
+                        <div className={cn(
+                            "p-1.5 rounded-full transition-colors",
+                            showComments ? "bg-sage/10" : "group-hover:bg-sage/10"
+                        )}>
                             <MessageCircle className="w-5 h-5" />
                         </div>
                         <span className="font-medium">{post.comments?.length || 0} Comments</span>
@@ -241,6 +252,8 @@ export const PostCard = ({ post }: { post: any }) => {
                         <Share2 className="w-5 h-5" />
                     </button>
                 </div>
+
+                <CommentSection postId={post.id} isOpen={showComments} />
             </div>
 
             {/* Image Modal */}
