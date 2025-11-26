@@ -126,7 +126,7 @@ export const PostCard = ({ post }: { post: any }) => {
 
     return (
         <>
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-terracotta/10 hover:shadow-md transition-shadow duration-200">
+            <div className="bg-[#3C3434] p-5 rounded-2xl shadow-sm border border-terracotta/10 hover:bg-[#4A4042] transition-all duration-200">
                 <div className="flex items-center gap-3 mb-3 relative">
                     <Link href={`/u/${post.profiles?.username}`}>
                         <div className="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-lg overflow-hidden hover:opacity-80 transition-opacity">
@@ -142,7 +142,7 @@ export const PostCard = ({ post }: { post: any }) => {
                         </div>
                     </Link>
                     <div className="flex-1">
-                        <h3 className="font-bold text-sm text-black">@{post.profiles?.username || 'anonymous'}</h3>
+                        <h3 className="font-bold text-sm text-white">@{post.profiles?.username || 'anonymous'}</h3>
                         <p className="text-xs text-muted-foreground" suppressHydrationWarning>
                             {post.created_at ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true }) : 'Just now'}
                         </p>
@@ -205,7 +205,7 @@ export const PostCard = ({ post }: { post: any }) => {
                         </div>
                     </div>
                 ) : (
-                    <p className="text-black mb-4 whitespace-pre-wrap leading-relaxed">{displayContent}</p>
+                    <p className="text-white mb-4 whitespace-pre-wrap leading-relaxed">{displayContent}</p>
                 )}
 
                 {post.media_urls?.length > 0 && (
