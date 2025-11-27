@@ -40,13 +40,21 @@ export default async function MarketplacePage({
 
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-2xl font-heading font-bold text-terracotta">Marketplace</h1>
-                    <Link
-                        href="/marketplace/sell"
-                        className="px-4 py-2 bg-terracotta text-white rounded-full font-bold text-sm shadow-md hover:bg-terracotta/90 transition-colors flex items-center gap-2"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Sell Item
-                    </Link>
+                    <div className="flex gap-2">
+                        <Link
+                            href="/marketplace/my-listings"
+                            className="px-4 py-2 bg-sky-600 text-white rounded-full font-bold text-sm shadow-md hover:bg-sky-700 transition-colors"
+                        >
+                            My Listings
+                        </Link>
+                        <Link
+                            href="/marketplace/sell"
+                            className="px-4 py-2 bg-terracotta text-white rounded-full font-bold text-sm shadow-md hover:bg-terracotta/90 transition-colors flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Sell Item
+                        </Link>
+                    </div>
                 </div>
 
                 <MarketplaceSearch />
