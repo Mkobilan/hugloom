@@ -6,6 +6,7 @@ import { CareDashboard } from "./CareDashboard";
 import { addMemberToCircle } from "@/lib/actions/care-circles";
 import { CalendarView } from "./CalendarView";
 import { createClient } from "@/lib/supabase/client";
+import { searchUsers } from "@/lib/actions/user";
 
 interface CircleMember {
     id: string;
@@ -38,6 +39,38 @@ export const CircleDetailView = ({ circleData, circleId }: CircleDetailViewProps
     const [newMemberUsername, setNewMemberUsername] = useState("");
     const [loading, setLoading] = useState(false);
     const [showWarning, setShowWarning] = useState(false);
+
+    // Search state
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (newMemberUsername.trim().length >= 2 && !newMemberUsername.includes('@')) {
+                setIsSearching(true);
+                try {
+                    const users = await searchUsers(newMemberUsername);
+                    setSearchResults(users);
+                    setShowResults(true);
+                } catch (error) {
+                    console.error("Error searching users:", error);
+                } finally {
+                    setIsSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+                setShowResults(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [newMemberUsername]);
+
+    const handleSelectUser = (username: string) => {
+        setNewMemberUsername(username);
+        setShowResults(false);
+    };
 
     // Calendar data state
     const [events, setEvents] = useState<any[]>([]);
@@ -173,14 +206,40 @@ export const CircleDetailView = ({ circleData, circleId }: CircleDetailViewProps
                     <form onSubmit={handleAddMember} className="p-4 bg-white rounded-xl border border-slate-blue/20 shadow-sm mb-6 animate-in fade-in slide-in-from-top-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
                         <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={newMemberUsername}
-                                onChange={(e) => setNewMemberUsername(e.target.value)}
-                                placeholder="Enter username (e.g., @johndoe)"
-                                className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-slate-blue/20"
-                                autoFocus
-                            />
+                            <div className="relative flex-1">
+                                <input
+                                    type="text"
+                                    value={newMemberUsername}
+                                    onChange={(e) => setNewMemberUsername(e.target.value)}
+                                    placeholder="Enter username (e.g., @johndoe)"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-slate-blue/20 text-black"
+                                    autoFocus
+                                />
+                                {showResults && searchResults.length > 0 && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                                        {searchResults.map((user) => (
+                                            <button
+                                                key={user.id}
+                                                type="button"
+                                                onClick={() => handleSelectUser(user.username)}
+                                                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                                            >
+                                                <div className="w-8 h-8 rounded-full bg-slate-blue/10 flex items-center justify-center text-slate-blue font-bold text-xs">
+                                                    {user.avatar_url ? (
+                                                        <img src={user.avatar_url} alt={user.username} className="w-full h-full rounded-full object-cover" />
+                                                    ) : (
+                                                        (user.full_name?.[0] || user.username?.[0] || "?").toUpperCase()
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">{user.full_name || user.username}</p>
+                                                    <p className="text-xs text-gray-500">@{user.username}</p>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                             <button
                                 type="submit"
                                 disabled={loading}
@@ -207,8 +266,8 @@ export const CircleDetailView = ({ circleData, circleId }: CircleDetailViewProps
                     <button
                         onClick={() => handleTabChange("tasks")}
                         className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === "tasks"
-                                ? "text-slate-blue border-b-2 border-slate-blue"
-                                : "text-gray-500 hover:text-gray-700"
+                            ? "text-slate-blue border-b-2 border-slate-blue"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         <ClipboardList className="w-4 h-4" />
@@ -217,8 +276,8 @@ export const CircleDetailView = ({ circleData, circleId }: CircleDetailViewProps
                     <button
                         onClick={() => handleTabChange("calendar")}
                         className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${activeTab === "calendar"
-                                ? "text-slate-blue border-b-2 border-slate-blue"
-                                : "text-gray-500 hover:text-gray-700"
+                            ? "text-slate-blue border-b-2 border-slate-blue"
+                            : "text-gray-500 hover:text-gray-700"
                             }`}
                     >
                         <Calendar className="w-4 h-4" />
