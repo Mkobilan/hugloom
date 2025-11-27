@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MapPin, Heart, HandHeart, Trash2, User } from 'lucide-react';
+import { MapPin, Heart, HandHeart, Trash2, User, Pencil } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { HugDetailsModal } from './HugDetailsModal';
+import { CreateHugModal } from './CreateHugModal';
 
 interface LocalHug {
     id: string;
@@ -24,10 +25,12 @@ interface LocalHugCardProps {
     hug: LocalHug;
     currentUserId?: string;
     onDelete: (id: string) => void;
+    onUpdate?: () => void;
 }
 
-export const LocalHugCard = ({ hug, currentUserId, onDelete }: LocalHugCardProps) => {
+export const LocalHugCard = ({ hug, currentUserId, onDelete, onUpdate }: LocalHugCardProps) => {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const supabase = createClient();
 
@@ -84,13 +87,24 @@ export const LocalHugCard = ({ hug, currentUserId, onDelete }: LocalHugCardProps
                             {hug.services.join(', ')}
                         </h3>
                         {isOwner && (
-                            <button
-                                onClick={handleDelete}
-                                disabled={isDeleting}
-                                className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsEditOpen(true);
+                                    }}
+                                    className="p-1.5 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={isDeleting}
+                                    className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
                         )}
                     </div>
 
@@ -124,6 +138,16 @@ export const LocalHugCard = ({ hug, currentUserId, onDelete }: LocalHugCardProps
                 isOpen={isDetailsOpen}
                 onClose={() => setIsDetailsOpen(false)}
                 hug={hug}
+            />
+
+            <CreateHugModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                hug={hug}
+                onSuccess={() => {
+                    setIsEditOpen(false);
+                    if (onUpdate) onUpdate();
+                }}
             />
         </>
     );

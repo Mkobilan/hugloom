@@ -163,8 +163,8 @@ export default function LocalHugsPage() {
                         <button
                             onClick={() => setShowMyHugs(!showMyHugs)}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${showMyHugs
-                                    ? 'bg-terracotta text-white border-terracotta'
-                                    : 'bg-transparent text-white/60 border-white/20 hover:border-white/40'
+                                ? 'bg-terracotta text-white border-terracotta'
+                                : 'bg-transparent text-white/60 border-white/20 hover:border-white/40'
                                 }`}
                         >
                             My Hugs
@@ -185,6 +185,7 @@ export default function LocalHugsPage() {
                                 hug={hug}
                                 currentUserId={currentUser?.id}
                                 onDelete={handleDelete}
+                                onUpdate={fetchHugs}
                             />
                         ))}
                     </div>

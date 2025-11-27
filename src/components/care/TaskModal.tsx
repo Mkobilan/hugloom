@@ -28,7 +28,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
         name: '', dosage: '', frequency: '', notes: '', times: ['08:00'],
         active: true, reminderEnabled: true,
         startDate: new Date().toISOString().split('T')[0], endDate: '',
-        taskCategory: taskType, description: '', duration: 30, recurrencePattern: 'daily',
+        taskCategory: taskType, description: '', duration: 30, recurrencePattern: null,
     });
 
     useEffect(() => {
@@ -72,18 +72,18 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                 active: editingTask.active ?? true,
                 reminderEnabled: editingTask.reminder_enabled ?? true,
                 startDate: startDate,
-                endDate: editingTask.end_date || '',
+                endDate: editingTask.end_date || editingTask.recurrence_end_date || '',
                 taskCategory: editingTask.task_category || taskType,
                 description: editingTask.description || '',
                 duration: editingTask.duration || 30,
-                recurrencePattern: editingTask.recurrence_pattern || 'daily',
+                recurrencePattern: editingTask.recurrence_pattern || null,
             });
         } else {
             setFormData({
                 name: '', dosage: '', frequency: '', notes: '', times: ['08:00'],
                 active: true, reminderEnabled: true,
                 startDate: new Date().toISOString().split('T')[0], endDate: '',
-                taskCategory: taskType, description: '', duration: 30, recurrencePattern: 'daily',
+                taskCategory: taskType, description: '', duration: 30, recurrencePattern: null,
             });
         }
     }, [editingTask, isOpen, taskType]);
@@ -123,6 +123,18 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                 }
             } else {
                 // For calendar events (personal_care, appointment, task)
+                // Determine if this is a recurring daily task
+                const isRecurringDaily = formData.frequency === 'Once daily' ||
+                    formData.frequency === 'Twice daily' ||
+                    formData.frequency === 'Three times daily';
+
+                let recurrencePattern: string | null = formData.recurrencePattern;
+                if (isRecurringDaily) {
+                    recurrencePattern = 'daily';
+                } else if (formData.frequency === 'One-time') {
+                    recurrencePattern = null;
+                }
+
                 if (editingTask?.id) {
                     // EDITING: Update existing event
                     const time = formData.times[0]; // Use first time for single event
@@ -135,15 +147,22 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                     const startDateTimeStr = startDateObj.toISOString();
                     const endDateTimeStr = endDateObj.toISOString();
 
-                    const eventData = {
+                    const eventData: any = {
                         title: formData.name.trim(),
-                        description: formData.notes.trim(),
+                        description: `${formData.frequency ? formData.frequency + ' - ' : ''}${formData.notes.trim()}`,
                         task_category: formData.taskCategory,
                         event_type: formData.taskCategory,
-                        recurrence_pattern: formData.recurrencePattern,
+                        recurrence_pattern: recurrencePattern,
                         start_time: startDateTimeStr,
                         end_time: endDateTimeStr,
                     };
+
+                    // Add recurrence_end_date if end date is provided
+                    if (isRecurringDaily && formData.endDate) {
+                        eventData.recurrence_end_date = formData.endDate;
+                    } else {
+                        eventData.recurrence_end_date = null;
+                    }
 
                     // Extract the actual event ID (remove 'event-' prefix if present)
                     const eventId = editingTask.id.toString().startsWith('event-')
@@ -164,14 +183,19 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
 
                         const eventData: any = {
                             title: formData.name.trim(),
-                            description: formData.notes.trim(),
+                            description: `${formData.frequency ? formData.frequency + ' - ' : ''}${formData.notes.trim()}`,
                             task_category: formData.taskCategory,
                             event_type: formData.taskCategory,
-                            recurrence_pattern: formData.recurrencePattern,
+                            recurrence_pattern: recurrencePattern,
                             created_by: user.id,
                             start_time: startDateTimeStr,
                             end_time: endDateTimeStr,
                         };
+
+                        // Add recurrence_end_date if end date is provided
+                        if (isRecurringDaily && formData.endDate) {
+                            eventData.recurrence_end_date = formData.endDate;
+                        }
 
                         // Set circle_id if in circle context
                         if (circleId) {
@@ -261,36 +285,68 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">Frequency</label>
                         <select value={formData.frequency}
-                            onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
+                            onChange={(e) => {
+                                const newFreq = e.target.value;
+                                setFormData(prev => {
+                                    // Auto-adjust times based on frequency for non-medication tasks
+                                    let newTimes = prev.times;
+                                    if (prev.taskCategory !== 'medication') {
+                                        if (newFreq === 'Once daily' && prev.times.length !== 1) {
+                                            newTimes = ['08:00'];
+                                        } else if (newFreq === 'Twice daily' && prev.times.length !== 2) {
+                                            newTimes = ['08:00', '20:00'];
+                                        } else if (newFreq === 'Three times daily' && prev.times.length !== 3) {
+                                            newTimes = ['08:00', '14:00', '20:00'];
+                                        }
+                                    }
+                                    return { ...prev, frequency: newFreq, times: newTimes };
+                                });
+                            }}
                             className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all">
                             <option value="">Select frequency</option>
+                            <option value="One-time">One-time</option>
                             <option value="Once daily">Once daily</option>
                             <option value="Twice daily">Twice daily</option>
                             <option value="Three times daily">Three times daily</option>
                         </select>
                     </div>
 
-                    {/* Date Picker for Non-Recurring Tasks (Appointments, One-off Tasks) */}
+                    {/* Date Range for All Task Types */}
                     {(formData.taskCategory === 'appointment' || formData.taskCategory === 'task' || formData.taskCategory === 'personal_care') && (
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Date <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.startDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
-                            />
-                        </div>
+                        <>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Start Date <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    value={formData.startDate}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                                    className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                />
+                            </div>
+                            {(formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        End Date (Optional)
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={formData.endDate}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                                        className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                    />
+                                </div>
+                            )}
+                        </>
                     )}
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
                             <label className="block text-sm font-medium text-gray-900">
-                                {formData.taskCategory === 'medication' ? 'Times' : 'Time'} <span className="text-red-500">*</span>
+                                {formData.times.length > 1 ? 'Times' : 'Time'} <span className="text-red-500">*</span>
                             </label>
-                            {formData.taskCategory === 'medication' && (
+                            {(formData.taskCategory === 'medication' || formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
                                 <button type="button" onClick={addTime}
                                     className="flex items-center gap-1 text-xs text-slate-blue hover:text-deep-slate transition-colors">
                                     <Plus className="w-4 h-4" /> Add Time
@@ -305,7 +361,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                                         onChange={(e) => updateTime(index, e.target.value)}
                                         className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
                                     />
-                                    {formData.times.length > 1 && formData.taskCategory === 'medication' && (
+                                    {formData.times.length > 1 && (formData.taskCategory === 'medication' || formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
                                         <button type="button" onClick={() => removeTime(index)}
                                             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                                             <Trash2 className="w-4 h-4" />

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
@@ -46,10 +47,39 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
     const getTasksForDay = (day: Date) => {
         const dayStr = format(day, 'yyyy-MM-dd');
 
-        const dayEvents = events.filter(e => {
-            const eventDate = new Date(e.start_time);
-            const eventDayStr = format(eventDate, 'yyyy-MM-dd');
-            return eventDayStr === dayStr;
+        // Handle regular calendar events (non-recurring and recurring)
+        const dayEvents = events.flatMap(e => {
+            // Check if this is a recurring daily event
+            if (e.recurrence_pattern === 'daily') {
+                // Get the start date from start_time
+                const eventStartDate = new Date(e.start_time);
+                const eventStartDateStr = format(eventStartDate, 'yyyy-MM-dd');
+
+                // Check if the current day is within the recurrence range
+                if (eventStartDateStr > dayStr) return [];
+                if (e.recurrence_end_date && e.recurrence_end_date < dayStr) return [];
+
+                // Extract the time from the original start_time
+                const eventTime = format(eventStartDate, 'HH:mm');
+
+                return [{
+                    id: `event-${e.id}-${dayStr}`,
+                    title: e.title,
+                    description: e.description || 'No details',
+                    task_category: e.task_category,
+                    start_time: `${dayStr}T${eventTime}`,
+                    originalData: e,
+                    isRecurring: true,
+                    time: eventTime
+                }];
+            } else {
+                // Non-recurring event - only show on the exact date
+                const eventDate = new Date(e.start_time);
+                const eventDayStr = format(eventDate, 'yyyy-MM-dd');
+                if (eventDayStr !== dayStr) return [];
+
+                return [e];
+            }
         });
 
         const medTasks = medications.flatMap(med => {
@@ -69,8 +99,8 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
         });
 
         return [...dayEvents, ...medTasks].sort((a, b) => {
-            const timeA = a.isMedication ? a.time : format(new Date(a.start_time), 'HH:mm');
-            const timeB = b.isMedication ? b.time : format(new Date(b.start_time), 'HH:mm');
+            const timeA = a.isMedication || a.isRecurring ? a.time : format(new Date(a.start_time), 'HH:mm');
+            const timeB = b.isMedication || b.isRecurring ? b.time : format(new Date(b.start_time), 'HH:mm');
             return timeA.localeCompare(timeB);
         });
     };
@@ -80,6 +110,10 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
         if (task.isMedication) {
             setEditingTask(task.originalData);
             setTaskType('medication');
+        } else if (task.isRecurring) {
+            // For recurring events, edit the original event
+            setEditingTask(task.originalData);
+            setTaskType(task.task_category || 'task');
         } else {
             setEditingTask(task);
             setTaskType(task.task_category || 'task');
@@ -171,7 +205,7 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
                                             )}
                                         >
                                             <span className="font-bold shrink-0">
-                                                {task.isMedication ? task.time : format(new Date(task.start_time), 'h:mm a')}
+                                                {task.isMedication || task.isRecurring ? task.time : format(new Date(task.start_time), 'h:mm a')}
                                             </span>
                                             <span className="truncate">{task.title}</span>
 

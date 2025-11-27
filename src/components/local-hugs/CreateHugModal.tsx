@@ -1,15 +1,31 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Loader2, Check, Heart, HandHeart } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
+interface LocalHug {
+    id: string;
+    user_id: string;
+    type: 'volunteer' | 'request';
+    services: string[];
+    city: string;
+    state: string;
+    description: string;
+    created_at: string;
+    profiles?: {
+        username: string;
+        avatar_url?: string;
+    };
+}
+
 interface CreateHugModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: 'volunteer' | 'request';
+    type?: 'volunteer' | 'request';
     onSuccess: () => void;
+    hug?: LocalHug;
 }
 
 const SERVICES = [
@@ -19,7 +35,7 @@ const SERVICES = [
     'Appointment Ride'
 ];
 
-export const CreateHugModal = ({ isOpen, onClose, type, onSuccess }: CreateHugModalProps) => {
+export const CreateHugModal = ({ isOpen, onClose, type, onSuccess, hug }: CreateHugModalProps) => {
     const [loading, setLoading] = useState(false);
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [city, setCity] = useState('');
@@ -29,6 +45,21 @@ export const CreateHugModal = ({ isOpen, onClose, type, onSuccess }: CreateHugMo
 
     const supabase = createClient();
     const router = useRouter();
+
+    useEffect(() => {
+        if (isOpen && hug) {
+            setSelectedServices(hug.services);
+            setCity(hug.city);
+            setState(hug.state);
+            setDescription(hug.description);
+        } else if (isOpen && !hug) {
+            // Reset form for new post
+            setSelectedServices([]);
+            setCity('');
+            setState('');
+            setDescription('');
+        }
+    }, [isOpen, hug]);
 
     if (!isOpen) return null;
 
@@ -60,38 +91,58 @@ export const CreateHugModal = ({ isOpen, onClose, type, onSuccess }: CreateHugMo
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
-            const { error: insertError } = await supabase
-                .from('local_hugs')
-                .insert({
-                    user_id: user.id,
-                    type,
-                    services: selectedServices,
-                    city,
-                    state,
-                    description
-                });
+            if (hug) {
+                // Update existing hug
+                const { error: updateError } = await supabase
+                    .from('local_hugs')
+                    .update({
+                        services: selectedServices,
+                        city,
+                        state,
+                        description
+                    })
+                    .eq('id', hug.id);
 
-            if (insertError) throw insertError;
+                if (updateError) throw updateError;
+            } else {
+                // Create new hug
+                const { error: insertError } = await supabase
+                    .from('local_hugs')
+                    .insert({
+                        user_id: user.id,
+                        type: type!,
+                        services: selectedServices,
+                        city,
+                        state,
+                        description
+                    });
+
+                if (insertError) throw insertError;
+            }
 
             onSuccess();
             onClose();
             // Reset form
-            setSelectedServices([]);
-            setCity('');
-            setState('');
-            setDescription('');
+            if (!hug) {
+                setSelectedServices([]);
+                setCity('');
+                setState('');
+                setDescription('');
+            }
             router.refresh();
 
         } catch (err: any) {
-            console.error('Error creating hug:', err);
-            setError(err.message || 'Failed to create post');
+            console.error('Error saving hug:', err);
+            setError(err.message || 'Failed to save post');
         } finally {
             setLoading(false);
         }
     };
 
-    const isVolunteer = type === 'volunteer';
-    const title = isVolunteer ? 'Volunteer to Help' : 'Request Help';
+    // Determine display values based on hug prop or type prop
+    const currentType = hug ? hug.type : type!;
+    const isVolunteer = currentType === 'volunteer';
+    const title = hug ? 'Edit Local Hug' : (isVolunteer ? 'Volunteer to Help' : 'Request Help');
     const descriptionLabel = isVolunteer ? 'Availability' : 'Details';
     const descriptionPlaceholder = isVolunteer
         ? 'e.g. Available weekends and evenings...'
@@ -145,8 +196,8 @@ export const CreateHugModal = ({ isOpen, onClose, type, onSuccess }: CreateHugMo
                                         type="button"
                                         onClick={() => toggleService(service)}
                                         className={`p-3 rounded-xl border text-sm font-medium transition-all text-left flex items-center justify-between ${isSelected
-                                                ? `bg-${themeColor}-600 border-${themeColor}-600 text-white`
-                                                : 'bg-[#4A4042] border-white/10 text-white/70 hover:border-white/30'
+                                            ? `bg-${themeColor}-600 border-${themeColor}-600 text-white`
+                                            : 'bg-[#4A4042] border-white/10 text-white/70 hover:border-white/30'
                                             }`}
                                     >
                                         {service}
@@ -204,17 +255,17 @@ export const CreateHugModal = ({ isOpen, onClose, type, onSuccess }: CreateHugMo
                         type="submit"
                         disabled={loading}
                         className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${isVolunteer
-                                ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20'
-                                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+                            ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20'
+                            : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {loading ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin" />
-                                Posting...
+                                {hug ? 'Saving Changes...' : 'Post Local Hug'}
                             </>
                         ) : (
-                            'Post Local Hug'
+                            hug ? 'Save Changes' : 'Post Local Hug'
                         )}
                     </button>
                 </form>
