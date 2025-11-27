@@ -303,6 +303,83 @@ export default function SettingsPage() {
                         </button>
                     </form>
                 </div>
+
+                {/* Privacy & Visibility Section */}
+                <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <Eye className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Privacy & Visibility</h2>
+                    </div>
+
+                    <div className="space-y-6">
+                        {/* Posts Visibility */}
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Who can see your posts?
+                            </label>
+                            <select
+                                value={profile?.post_visibility || 'public'}
+                                onChange={async (e) => {
+                                    const newVal = e.target.value;
+                                    setProfile({ ...profile, post_visibility: newVal });
+                                    const { error } = await supabase
+                                        .from('profiles')
+                                        .update({ post_visibility: newVal })
+                                        .eq('id', user.id);
+                                    if (error) {
+                                        console.error('Error updating post visibility:', error);
+                                        setMessage({ type: 'error', text: 'Failed to update visibility' });
+                                    } else {
+                                        setMessage({ type: 'success', text: 'Visibility settings updated' });
+                                        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                                    }
+                                }}
+                                className="w-full px-4 py-3 rounded-xl border border-terracotta/20 bg-[#4A4042] text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            >
+                                <option value="public">Everyone (Public)</option>
+                                <option value="followers">Followers Only</option>
+                            </select>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Control who can see your posts on your profile and in the feed.
+                            </p>
+                        </div>
+
+
+                        {/* Marketplace Visibility */}
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Who can see your Marketplace Listings?
+                            </label>
+                            <select
+                                value={profile?.marketplace_visibility || 'public'}
+                                onChange={async (e) => {
+                                    const newVal = e.target.value;
+                                    setProfile({ ...profile, marketplace_visibility: newVal });
+                                    const { error } = await supabase
+                                        .from('profiles')
+                                        .update({ marketplace_visibility: newVal })
+                                        .eq('id', user.id);
+                                    if (error) {
+                                        console.error('Error updating marketplace visibility:', error);
+                                        setMessage({ type: 'error', text: 'Failed to update visibility' });
+                                    } else {
+                                        setMessage({ type: 'success', text: 'Visibility settings updated' });
+                                        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+                                    }
+                                }}
+                                className="w-full px-4 py-3 rounded-xl border border-terracotta/20 bg-[#4A4042] text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
+                            >
+                                <option value="public">Everyone (Public)</option>
+                                <option value="followers">Followers Only</option>
+                            </select>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Control who can see items you list for sale.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </AppLayout>
     );
