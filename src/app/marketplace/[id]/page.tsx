@@ -118,7 +118,7 @@ export default async function ListingDetailsPage({
                                     <p className="text-sm text-gray-400">@{item.seller?.username}</p>
                                 </div>
                                 <Link
-                                    href={`/messages?user=${item.seller_id}`}
+                                    href={`/messages/chat/${item.seller_id}`}
                                     className="ml-auto px-4 py-2 bg-terracotta text-white rounded-full font-bold text-sm hover:bg-terracotta/90 transition-colors"
                                 >
                                     Message
