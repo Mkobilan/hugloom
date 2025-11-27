@@ -21,7 +21,6 @@ export async function getOrCreateConversation(otherUserId: string) {
         throw new Error('Failed to create conversation')
     }
 
-    revalidatePath('/messages')
     return conversationId
 }
 
