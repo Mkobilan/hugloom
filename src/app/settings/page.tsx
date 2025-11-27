@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useAppearance } from '@/components/providers/AppearanceProvider';
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -13,6 +15,9 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
+
+    const { theme, setTheme } = useTheme();
+    const { fontSize, setFontSize } = useAppearance();
 
     // Password change state
     const [currentPassword, setCurrentPassword] = useState('');
@@ -378,6 +383,88 @@ export default function SettingsPage() {
                                 Control who can see items you list for sale.
                             </p>
                         </div>
+                    </div>
+                </div>
+                {/* Appearance Section */}
+                <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <Palette className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Appearance</h2>
+                    </div>
+
+                    <div className="space-y-8">
+                        {/* Theme */}
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-3">
+                                Theme
+                            </label>
+                            <div className="grid grid-cols-3 gap-3">
+                                <button
+                                    onClick={() => setTheme('light')}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${theme === 'light'
+                                        ? 'border-terracotta bg-terracotta/10 text-terracotta'
+                                        : 'border-terracotta/10 bg-[#4A4042] text-white/70 hover:border-terracotta/50'
+                                        }`}
+                                >
+                                    <Sun className="w-6 h-6 mb-2" />
+                                    <span className="text-sm font-medium">Light</span>
+                                </button>
+                                <button
+                                    onClick={() => setTheme('dark')}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${theme === 'dark'
+                                        ? 'border-terracotta bg-terracotta/10 text-terracotta'
+                                        : 'border-terracotta/10 bg-[#4A4042] text-white/70 hover:border-terracotta/50'
+                                        }`}
+                                >
+                                    <Moon className="w-6 h-6 mb-2" />
+                                    <span className="text-sm font-medium">Dark</span>
+                                </button>
+                                <button
+                                    onClick={() => setTheme('system')}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${theme === 'system'
+                                        ? 'border-terracotta bg-terracotta/10 text-terracotta'
+                                        : 'border-terracotta/10 bg-[#4A4042] text-white/70 hover:border-terracotta/50'
+                                        }`}
+                                >
+                                    <Monitor className="w-6 h-6 mb-2" />
+                                    <span className="text-sm font-medium">Auto</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Font Size */}
+                        <div>
+                            <div className="flex items-center justify-between mb-3">
+                                <label className="text-sm font-medium text-white">
+                                    Font Size
+                                </label>
+                                <span className="text-xs text-terracotta font-medium uppercase tracking-wider">
+                                    {fontSize}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-4 gap-3">
+                                {(['small', 'medium', 'large', 'xl'] as const).map((size) => (
+                                    <button
+                                        key={size}
+                                        onClick={() => setFontSize(size)}
+                                        className={`flex items-center justify-center p-3 rounded-xl border-2 transition-all ${fontSize === size
+                                            ? 'border-terracotta bg-terracotta/10 text-terracotta'
+                                            : 'border-terracotta/10 bg-[#4A4042] text-white/70 hover:border-terracotta/50'
+                                            }`}
+                                    >
+                                        <span className={
+                                            size === 'small' ? 'text-sm' :
+                                                size === 'medium' ? 'text-base' :
+                                                    size === 'large' ? 'text-lg' :
+                                                        'text-xl'
+                                        }>Aa</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

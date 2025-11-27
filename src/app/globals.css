@@ -177,4 +177,22 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Font Size Scaling */
+  :root[data-font-size="small"] {
+    font-size: 14px;
+  }
+
+  :root[data-font-size="medium"] {
+    font-size: 16px;
+  }
+
+  :root[data-font-size="large"] {
+    font-size: 18px;
+  }
+
+  :root[data-font-size="xl"] {
+    font-size: 20px;
+  }
+
 }

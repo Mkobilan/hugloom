@@ -27,19 +27,23 @@ export const metadata: Metadata = {
 
 import { Toaster } from 'sonner';
 
+import { AppearanceProvider } from "@/components/providers/AppearanceProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
-        <NotificationListener />
-        <Toaster position="top-center" />
-        {children}
+        <AppearanceProvider>
+          <NotificationListener />
+          <Toaster position="top-center" />
+          {children}
+        </AppearanceProvider>
       </body>
     </html>
   );
