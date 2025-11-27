@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, UserPlus, AlertTriangle, Calendar, ClipboardList } from "lucide-react";
 import { CareDashboard } from "./CareDashboard";
 import { addMemberToCircle } from "@/lib/actions/care-circles";
