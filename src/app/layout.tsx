@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   description: "A social hub for caregivers.",
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,6 +38,7 @@ export default function RootLayout({
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
         <NotificationListener />
+        <Toaster position="top-center" />
         {children}
       </body>
     </html>

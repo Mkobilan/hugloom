@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 export function NotificationListener() {
     const pathname = usePathname()
@@ -101,6 +102,15 @@ export function NotificationListener() {
                         } catch (e) {
                             console.error('Error initializing audio', e)
                         }
+
+                        // Trigger in-app toast
+                        toast.message(title, {
+                            description: body,
+                            action: {
+                                label: 'View',
+                                onClick: () => router.push(`/messages/${newMessage.conversation_id}`)
+                            },
+                        })
 
                         // Send notification
                         if (Notification.permission === 'granted') {
