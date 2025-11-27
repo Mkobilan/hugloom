@@ -93,25 +93,9 @@ export function NotificationListener() {
 
                         // Play sound
                         try {
-                            // Valid short beep sound (base64 encoded WAV)
-                            const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU')
-                            // The previous base64 was likely invalid or empty. 
-                            // Let's use a known working short beep or just keep the structure but ensure it's valid.
-                            // Actually, the previous one `UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU` decodes to a very short/empty WAV header.
-                            // Let's try a slightly more robust one or at least handle the error gracefully.
-                            // For now, I will use a simple notification sound if possible, or just catch the error.
-                            // Since I cannot easily generate a new base64 sound here without external tools, 
-                            // I will stick to the existing one but ensure the catch block is robust, 
-                            // AND I will try to use a slightly better base64 string if I can recall one, 
-                            // but to be safe I will use the one provided in the example or a standard empty one to avoid syntax errors,
-                            // and rely on the browser's notification sound if available.
-                            // Wait, the user's log said "NotSupportedError: Failed to load because no supported source was found."
-                            // This implies the base64 was indeed bad.
-                            // Let's use a very simple beep.
-                            const simpleBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjxWq3JlhGpCNXODbW57aUE2WpI='
-                            const audioObj = new Audio(simpleBeep)
+                            const audio = new Audio('/sounds/notification.wav')
 
-                            await audioObj.play().catch(e => {
+                            await audio.play().catch(e => {
                                 console.log('Audio play failed (user interaction needed or format not supported):', e)
                             })
                         } catch (e) {
@@ -149,14 +133,12 @@ export function NotificationListener() {
         return () => {
             supabase.removeChannel(channel)
         }
-        // Removed pathname and router from dependencies to prevent re-subscription
     }, [userId, supabase])
 
     // Unlock audio on first user interaction
     useEffect(() => {
         const unlockAudio = () => {
-            const simpleBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjxWq3JlhGpCNXODbW57aUE2WpI='
-            const audio = new Audio(simpleBeep)
+            const audio = new Audio('/sounds/notification.wav')
             audio.play().catch(() => { })
             document.removeEventListener('click', unlockAudio)
             document.removeEventListener('touchstart', unlockAudio)
