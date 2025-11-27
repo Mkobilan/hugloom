@@ -106,24 +106,34 @@ export const CircleDetailView = ({ circleData, circleId }: CircleDetailViewProps
             const supabase = createClient();
 
             // Load medications for this circle
-            const { data: medsData, error: medsError } = await supabase
+            const medsQuery = supabase
                 .from("medications")
                 .select("*")
                 .eq("circle_id", circleId)
                 .eq("active", true);
 
-            if (medsError) throw medsError;
-
             // Load calendar events for this circle
-            const { data: eventsData, error: eventsError } = await supabase
+            // Optimization: Limit to +/- 1 year from now to avoid fetching entire history
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+            const oneYearFromNow = new Date();
+            oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+            const eventsQuery = supabase
                 .from("calendar_events")
                 .select("*")
-                .eq("circle_id", circleId);
+                .eq("circle_id", circleId)
+                .gte("start_time", oneYearAgo.toISOString())
+                .lte("start_time", oneYearFromNow.toISOString());
 
-            if (eventsError) throw eventsError;
+            // Execute in parallel
+            const [medsResult, eventsResult] = await Promise.all([medsQuery, eventsQuery]);
 
-            setMedications(medsData || []);
-            setEvents(eventsData || []);
+            if (medsResult.error) throw medsResult.error;
+            if (eventsResult.error) throw eventsResult.error;
+
+            setMedications(medsResult.data || []);
+            setEvents(eventsResult.data || []);
         } catch (error) {
             console.error("Error loading calendar data:", error);
         } finally {

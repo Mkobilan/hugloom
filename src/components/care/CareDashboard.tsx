@@ -109,23 +109,33 @@ export const CareDashboard = ({ circleId, isOwner = false }: CareDashboardProps)
                 eventsQuery = eventsQuery.eq('created_by', user.id).is('circle_id', null);
             }
 
-            const { data: medsData, error: medsError } = await medsQuery;
-            if (medsError) throw medsError;
+            // Optimization: Filter events to only show today and future
+            // This prevents fetching thousands of past events
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            eventsQuery = eventsQuery.gte('start_time', today.toISOString());
 
-            const { data: eventsData, error: eventsError } = await eventsQuery;
-            if (eventsError) throw eventsError;
+            // Execute queries in parallel for better performance
+            const [medsResult, eventsResult, completionsResult] = await Promise.all([
+                medsQuery,
+                eventsQuery,
+                supabase
+                    .from('task_completions')
+                    .select('*')
+                    .eq('completed_by', user.id)
+            ]);
 
-            // Load task completions
-            const { data: completionsData, error: completionsError } = await supabase
-                .from('task_completions')
-                .select('*')
-                .eq('completed_by', user.id);
+            if (medsResult.error) throw medsResult.error;
+            if (eventsResult.error) throw eventsResult.error;
+            if (completionsResult.error) throw completionsResult.error;
 
-            if (completionsError) throw completionsError;
+            const medsData = medsResult.data || [];
+            const eventsData = eventsResult.data || [];
+            const completionsData = completionsResult.data || [];
 
-            setMedications(medsData || []);
-            setCompletions(completionsData || []);
-            generateTodayTasks(medsData || [], eventsData || [], completionsData || [], filter);
+            setMedications(medsData);
+            setCompletions(completionsData);
+            generateTodayTasks(medsData, eventsData, completionsData, filter);
         } catch (error) {
             console.error('Error loading tasks:', error);
         } finally {
@@ -189,7 +199,9 @@ export const CareDashboard = ({ circleId, isOwner = false }: CareDashboardProps)
             if (shouldInclude) {
                 const scheduledDateTime = new Date(event.start_time);
                 const isPast = scheduledDateTime < now;
-                const time = event.start_time.split('T')[1].substring(0, 5);
+                // Fix: Parse time using Date object to handle timezone correctly
+                // This ensures it matches the CalendarView display
+                const time = scheduledDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                 const isCompleted = checkCompletion('event', event.id, '');
 
                 tasks.push({
