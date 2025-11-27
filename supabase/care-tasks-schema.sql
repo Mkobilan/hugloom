@@ -48,18 +48,40 @@ CREATE INDEX IF NOT EXISTS idx_task_completions_event ON public.task_completions
 CREATE INDEX IF NOT EXISTS idx_task_completions_medication ON public.task_completions(medication_id);
 CREATE INDEX IF NOT EXISTS idx_task_completions_date ON public.task_completions(completed_at);
 
+
 -- 4. Add RLS policies for task_completions
-CREATE POLICY "Users can view their own task completions"
-ON public.task_completions FOR SELECT
-USING (auth.uid() = completed_by);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'task_completions' 
+    AND policyname = 'Users can view their own task completions'
+  ) THEN
+    CREATE POLICY "Users can view their own task completions"
+    ON public.task_completions FOR SELECT
+    USING (auth.uid() = completed_by);
+  END IF;
 
-CREATE POLICY "Users can insert their own task completions"
-ON public.task_completions FOR INSERT
-WITH CHECK (auth.uid() = completed_by);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'task_completions' 
+    AND policyname = 'Users can insert their own task completions'
+  ) THEN
+    CREATE POLICY "Users can insert their own task completions"
+    ON public.task_completions FOR INSERT
+    WITH CHECK (auth.uid() = completed_by);
+  END IF;
 
-CREATE POLICY "Users can update their own task completions"
-ON public.task_completions FOR UPDATE
-USING (auth.uid() = completed_by);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'task_completions' 
+    AND policyname = 'Users can update their own task completions'
+  ) THEN
+    CREATE POLICY "Users can update their own task completions"
+    ON public.task_completions FOR UPDATE
+    USING (auth.uid() = completed_by);
+  END IF;
+END $$;
 
 -- 5. Add RLS policies for medications (if not already exists)
 DO $$ 
@@ -217,6 +239,106 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 8. Add RLS policies for Care Circle Members (Shared Access)
+DO $$ 
+BEGIN
+  -- Allow circle members to INSERT medications
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'medications' 
+    AND policyname = 'Circle members can insert medications'
+  ) THEN
+    CREATE POLICY "Circle members can insert medications"
+    ON public.medications FOR INSERT
+    WITH CHECK (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = medications.circle_id
+      )
+    );
+  END IF;
+
+  -- Allow circle members to UPDATE medications
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'medications' 
+    AND policyname = 'Circle members can update medications'
+  ) THEN
+    CREATE POLICY "Circle members can update medications"
+    ON public.medications FOR UPDATE
+    USING (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = medications.circle_id
+      )
+    );
+  END IF;
+
+  -- Allow circle members to DELETE medications
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'medications' 
+    AND policyname = 'Circle members can delete medications'
+  ) THEN
+    CREATE POLICY "Circle members can delete medications"
+    ON public.medications FOR DELETE
+    USING (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = medications.circle_id
+      )
+    );
+  END IF;
+
+  -- Allow circle members to INSERT calendar_events
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'calendar_events' 
+    AND policyname = 'Circle members can insert events'
+  ) THEN
+    CREATE POLICY "Circle members can insert events"
+    ON public.calendar_events FOR INSERT
+    WITH CHECK (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = calendar_events.circle_id
+      )
+    );
+  END IF;
+
+  -- Allow circle members to UPDATE calendar_events
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'calendar_events' 
+    AND policyname = 'Circle members can update events'
+  ) THEN
+    CREATE POLICY "Circle members can update events"
+    ON public.calendar_events FOR UPDATE
+    USING (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = calendar_events.circle_id
+      )
+    );
+  END IF;
+
+  -- Allow circle members to DELETE calendar_events
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'calendar_events' 
+    AND policyname = 'Circle members can delete events'
+  ) THEN
+    CREATE POLICY "Circle members can delete events"
+    ON public.calendar_events FOR DELETE
+    USING (
+      auth.uid() IN (
+        SELECT user_id FROM care_circle_members 
+        WHERE circle_id = calendar_events.circle_id
+      )
+    );
+  END IF;
+END $$;
+
 -- =====================================================
 -- NOTES:
 -- =====================================================
@@ -227,3 +349,117 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 4. RLS policies ensure data security
 -- 5. Helper function generates recurring events
 -- =====================================================
+
+-- 9. Add RLS policies for care_circles and care_circle_members
+DO $$ 
+BEGIN
+  -- Care Circles policies
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circles' 
+    AND policyname = 'Users can view circles they are members of'
+  ) THEN
+    CREATE POLICY "Users can view circles they are members of"
+    ON public.care_circles FOR SELECT
+    USING (
+      id IN (
+        SELECT circle_id FROM care_circle_members WHERE user_id = auth.uid()
+      )
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circles' 
+    AND policyname = 'Users can create circles'
+  ) THEN
+    CREATE POLICY "Users can create circles"
+    ON public.care_circles FOR INSERT
+    WITH CHECK (auth.uid() = created_by);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circles' 
+    AND policyname = 'Admins can update their circles'
+  ) THEN
+    CREATE POLICY "Admins can update their circles"
+    ON public.care_circles FOR UPDATE
+    USING (
+      id IN (
+        SELECT circle_id FROM care_circle_members 
+        WHERE user_id = auth.uid() AND role = 'admin'
+      )
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circles' 
+    AND policyname = 'Admins can delete their circles'
+  ) THEN
+    CREATE POLICY "Admins can delete their circles"
+    ON public.care_circles FOR DELETE
+    USING (
+      id IN (
+        SELECT circle_id FROM care_circle_members 
+        WHERE user_id = auth.uid() AND role = 'admin'
+      )
+    );
+  END IF;
+
+  -- Care Circle Members policies
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circle_members' 
+    AND policyname = 'Users can view members of their circles'
+  ) THEN
+    CREATE POLICY "Users can view members of their circles"
+    ON public.care_circle_members FOR SELECT
+    USING (
+      circle_id IN (
+        SELECT circle_id FROM care_circle_members WHERE user_id = auth.uid()
+      )
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circle_members' 
+    AND policyname = 'Users can add themselves to circles'
+  ) THEN
+    CREATE POLICY "Users can add themselves to circles"
+    ON public.care_circle_members FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circle_members' 
+    AND policyname = 'Admins can add members to their circles'
+  ) THEN
+    CREATE POLICY "Admins can add members to their circles"
+    ON public.care_circle_members FOR INSERT
+    WITH CHECK (
+      circle_id IN (
+        SELECT circle_id FROM care_circle_members 
+        WHERE user_id = auth.uid() AND role = 'admin'
+      )
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'care_circle_members' 
+    AND policyname = 'Admins can remove members from their circles'
+  ) THEN
+    CREATE POLICY "Admins can remove members from their circles"
+    ON public.care_circle_members FOR DELETE
+    USING (
+      circle_id IN (
+        SELECT circle_id FROM care_circle_members 
+        WHERE user_id = auth.uid() AND role = 'admin'
+      )
+    );
+  END IF;
+END $$;

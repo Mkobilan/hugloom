@@ -10,9 +10,10 @@ import { DayTasksModal } from './DayTasksModal';
 interface CalendarViewProps {
     events: any[];
     medications: any[];
+    circleId?: string;
 }
 
-export const CalendarView = ({ events, medications }: CalendarViewProps) => {
+export const CalendarView = ({ events, medications, circleId }: CalendarViewProps) => {
     const router = useRouter();
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
@@ -212,6 +213,7 @@ export const CalendarView = ({ events, medications }: CalendarViewProps) => {
                 }}
                 taskType={taskType}
                 editingTask={editingTask}
+                circleId={circleId}
             />
 
             <DayTasksModal

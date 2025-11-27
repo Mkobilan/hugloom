@@ -10,6 +10,7 @@ interface TaskModalProps {
     onSave: () => void;
     taskType: 'medication' | 'personal_care' | 'appointment' | 'task';
     editingTask?: any;
+    circleId?: string;
 }
 
 const TASK_TYPE_CONFIG = {
@@ -19,7 +20,7 @@ const TASK_TYPE_CONFIG = {
     task: { icon: CheckSquare, label: 'Task', color: 'text-mustard' },
 };
 
-export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: TaskModalProps) => {
+export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circleId }: TaskModalProps) => {
     const supabase = createClient();
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<any>(null);
@@ -100,14 +101,20 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
             }
 
             if (formData.taskCategory === 'medication') {
-                const medicationData = {
+                const medicationData: any = {
                     name: formData.name.trim(), dosage: formData.dosage.trim(),
                     frequency: formData.frequency.trim(), notes: formData.notes.trim(),
                     times: formData.times, active: formData.active,
                     reminder_enabled: formData.reminderEnabled,
                     start_date: formData.startDate, end_date: formData.endDate || null,
-                    user_id: user.id,
                 };
+
+                // Set user_id or circle_id based on context
+                if (circleId) {
+                    medicationData.circle_id = circleId;
+                } else {
+                    medicationData.user_id = user.id;
+                }
 
                 if (editingTask?.id) {
                     await supabase.from('medications').update(medicationData).eq('id', editingTask.id);
@@ -155,7 +162,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                         const startDateTimeStr = startDateObj.toISOString();
                         const endDateTimeStr = endDateObj.toISOString();
 
-                        await supabase.from('calendar_events').insert({
+                        const eventData: any = {
                             title: formData.name.trim(),
                             description: formData.notes.trim(),
                             task_category: formData.taskCategory,
@@ -164,7 +171,14 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask }: Ta
                             created_by: user.id,
                             start_time: startDateTimeStr,
                             end_time: endDateTimeStr,
-                        });
+                        };
+
+                        // Set circle_id if in circle context
+                        if (circleId) {
+                            eventData.circle_id = circleId;
+                        }
+
+                        await supabase.from('calendar_events').insert(eventData);
                     }
                 }
             }

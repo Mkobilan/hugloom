@@ -14,6 +14,7 @@ interface Medication {
     start_date: string;
     end_date: string | null;
     user_id: string;
+    circle_id: string | null;
     created_at: string;
 }
 

@@ -138,7 +138,7 @@ export const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                             onClick={onClose}
                         />
                         <NavItem
-                            href="/circles"
+                            href="/care-circles"
                             icon={HeartHandshake}
                             label="My Care Circles"
                             color="bg-rose-500"

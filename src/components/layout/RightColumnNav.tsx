@@ -106,7 +106,7 @@ export const RightColumnNav = () => {
                     subtitle="DMs & Groups"
                 />
                 <NavCard
-                    href="/circles"
+                    href="/care-circles"
                     icon={HeartHandshake}
                     label="My Care Circles"
                     color="bg-rose-500 text-white hover:bg-rose-600"
