@@ -113,14 +113,14 @@ export function MessageBubble({ message, isOwn, onEdit }: MessageBubbleProps) {
                             <div className="mb-2">
                                 {message.media_type === 'image' ? (
                                     <img
-                                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/message-attachments/${message.media_url}`}
+                                        src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-media/${message.media_url}`}
                                         alt="Attachment"
                                         className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                        onClick={() => window.open(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/message-attachments/${message.media_url}`, '_blank')}
+                                        onClick={() => window.open(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-media/${message.media_url}`, '_blank')}
                                     />
                                 ) : (
                                     <a
-                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/message-attachments/${message.media_url}`}
+                                        href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/post-media/${message.media_url}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={cn("flex items-center gap-2 p-2 rounded-lg", isOwn ? "bg-white/20" : "bg-gray-100")}

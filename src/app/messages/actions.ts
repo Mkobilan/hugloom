@@ -222,11 +222,11 @@ export async function uploadMessageAttachment(formData: FormData) {
     }
 
     const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const fileName = `chat/${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
     const { error } = await supabase
         .storage
-        .from('message-attachments')
+        .from('post-media')
         .upload(fileName, file)
 
     if (error) {
