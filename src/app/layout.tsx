@@ -3,6 +3,7 @@ import { Manrope, Inter, Kalam } from "next/font/google";
 import "./globals.css";
 
 import { NotificationListener } from "@/components/notifications/NotificationListener";
+import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
         <AppearanceProvider>
+          <ServiceWorkerRegistration />
           <NotificationListener />
           <Toaster position="top-center" />
           {children}
