@@ -62,14 +62,14 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         <AppLayout>
             <div className="max-w-2xl mx-auto space-y-8">
                 {/* Profile Header */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-border/50 text-center relative overflow-hidden">
+                <div className="bg-[#3C3434] p-6 rounded-3xl shadow-sm border border-white/10 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-slate-blue/20 to-terracotta/20" />
 
                     {/* Profile Actions (Plus button for owner) */}
                     <ProfileActions isOwner={isOwner} />
 
                     <div className="relative pt-12 mb-4">
-                        <div className="w-24 h-24 mx-auto rounded-full bg-white p-1 shadow-lg">
+                        <div className="w-24 h-24 mx-auto rounded-full bg-[#3C3434] p-1 shadow-lg">
                             <div className="w-full h-full rounded-full bg-slate-blue/10 overflow-hidden">
                                 {profile.avatar_url ? (
                                     <img
@@ -86,23 +86,23 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                         </div>
                     </div>
 
-                    <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                    <h1 className="text-2xl font-bold text-white mb-1">
                         {profile.full_name || profile.username}
                     </h1>
-                    <p className="text-gray-700 font-medium mb-2">@{profile.username}</p>
+                    <p className="text-gray-300 font-medium mb-2">@{profile.username}</p>
 
                     {/* Follower/Following Counts */}
                     <FollowCounts userId={profile.id} />
 
                     {profile.location && (
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-4">
+                        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-4">
                             <MapPin className="w-4 h-4" />
                             <span>{profile.location}</span>
                         </div>
                     )}
 
                     {profile.bio && (
-                        <p className="text-black max-w-md mx-auto mb-6 font-medium">
+                        <p className="text-white max-w-md mx-auto mb-6 font-medium">
                             {profile.bio}
                         </p>
                     )}

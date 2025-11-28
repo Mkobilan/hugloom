@@ -113,14 +113,14 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
     };
 
     return (
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-terracotta/10 mb-6 relative overflow-hidden">
+        <div className="bg-[#3C3434] p-4 rounded-2xl shadow-sm border border-terracotta/10 mb-6 relative overflow-hidden">
             {success && (
-                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center animate-in fade-in duration-200">
+                <div className="absolute inset-0 bg-[#3C3434]/90 backdrop-blur-sm z-10 flex items-center justify-center animate-in fade-in duration-200">
                     <div className="text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 text-green-600">
+                        <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-green-400">
                             <Send className="w-6 h-6" />
                         </div>
-                        <p className="font-bold text-green-800">Post sent successfully!</p>
+                        <p className="font-bold text-green-400">Post sent successfully!</p>
                     </div>
                 </div>
             )}
@@ -128,7 +128,7 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Share what's on your heart..."
-                className="w-full p-3 rounded-xl bg-cream/50 border-none focus:ring-2 focus:ring-terracotta/20 resize-none min-h-[100px] placeholder:text-muted-foreground/70 text-black"
+                className="w-full p-3 rounded-xl bg-[#4A4042] border-none focus:ring-2 focus:ring-terracotta/20 resize-none min-h-[100px] placeholder:text-white/50 text-white"
             />
 
             {/* Image Preview */}
@@ -137,7 +137,7 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
                     <img
                         src={imagePreview}
                         alt="Preview"
-                        className="max-h-48 rounded-xl border border-border/50"
+                        className="max-h-48 rounded-xl border border-white/10"
                     />
                     <button
                         onClick={handleRemoveImage}
@@ -159,7 +159,7 @@ export const CreatePost = ({ onSuccess }: CreatePostProps) => {
                     />
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-muted-foreground hover:text-terracotta transition-colors rounded-full hover:bg-terracotta/10"
+                        className="p-2 text-white/60 hover:text-terracotta transition-colors rounded-full hover:bg-terracotta/10"
                         type="button"
                     >
                         <Image className="w-5 h-5" />

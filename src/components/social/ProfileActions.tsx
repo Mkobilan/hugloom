@@ -24,16 +24,16 @@ export const ProfileActions = ({ isOwner }: ProfileActionsProps) => {
             </button>
 
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-[#3C3434] rounded-3xl w-full max-w-lg p-6 relative shadow-2xl animate-in fade-in zoom-in duration-200 border border-white/10">
                         <button
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground hover:bg-slate-100 rounded-full transition-colors"
+                            className="absolute top-4 right-4 p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>
 
-                        <h2 className="text-xl font-bold text-black mb-4">Create a Public Post</h2>
+                        <h2 className="text-xl font-bold text-white mb-4">Create a Public Post</h2>
 
                         <div className="mt-2">
                             {/* We can wrap CreatePost or just use it. 
