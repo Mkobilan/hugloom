@@ -21,7 +21,7 @@ const kalam = Kalam({
 });
 
 export const metadata: Metadata = {
-  title: "HugLoom - ElderCare Connect",
+  title: "HugLoom - Caregiver Community",
   description: "A social hub for caregivers.",
 };
 
