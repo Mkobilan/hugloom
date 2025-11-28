@@ -6,19 +6,15 @@ import { Download } from "lucide-react";
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isStandalone, setIsStandalone] = useState(false);
-    const [isIOS, setIsIOS] = useState(false);
 
     useEffect(() => {
         // Check if already in standalone mode
         if (window.matchMedia("(display-mode: standalone)").matches) {
             setIsStandalone(true);
+            return;
         }
 
-        // Check if iOS
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        setIsIOS(/iphone|ipad|ipod/.test(userAgent));
-
-        // Listen for beforeinstallprompt event (Android/Chrome)
+        // Listen for beforeinstallprompt event (Android/Chrome/Edge)
         const handleBeforeInstallPrompt = (e: any) => {
             e.preventDefault();
             setDeferredPrompt(e);
@@ -32,37 +28,37 @@ export function InstallPrompt() {
     }, []);
 
     const handleInstallClick = async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === "accepted") {
-                setDeferredPrompt(null);
-            }
-        } else if (isIOS) {
-            // For iOS, we can't programmatically trigger install, but we can show instructions
-            alert("To install this app on iOS, tap the Share button and select 'Add to Home Screen'.");
+        if (!deferredPrompt) {
+            return;
         }
+
+        // Show the native install prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user's response
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === "accepted") {
+            console.log("User accepted the install prompt");
+        } else {
+            console.log("User dismissed the install prompt");
+        }
+
+        // Clear the deferredPrompt so it can only be used once
+        setDeferredPrompt(null);
     };
 
-    if (isStandalone) {
+    // Only show the button if:
+    // 1. Not already installed (standalone mode)
+    // 2. Browser supports install (deferredPrompt is available)
+    if (isStandalone || !deferredPrompt) {
         return null;
     }
-
-    const handleGenericInstall = () => {
-        if (deferredPrompt) {
-            handleInstallClick();
-        } else if (isIOS) {
-            handleInstallClick();
-        } else {
-            // Generic instructions for browsers that don't support beforeinstallprompt
-            alert("To install this app:\n\n• On Android Chrome: Look for 'Install App' or 'Add to Home Screen' in the browser menu\n• On iOS Safari: Tap the Share button and select 'Add to Home Screen'\n• On Desktop: Look for the install icon in your browser's address bar");
-        }
-    };
 
     return (
         <div className="w-full flex justify-center my-4">
             <button
-                onClick={handleGenericInstall}
+                onClick={handleInstallClick}
                 className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
             >
                 <Download className="w-4 h-4" />
