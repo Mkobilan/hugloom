@@ -3,6 +3,8 @@ import { PostCard } from '@/components/social/PostCard'
 import { CreatePost } from '@/components/social/CreatePost'
 import { AppLayout } from '@/components/layout/AppLayout'
 
+import { InstallPrompt } from '@/components/pwa/InstallPrompt'
+
 export default async function FeedPage() {
     const supabase = await createClient()
     const { data: posts } = await supabase
@@ -28,6 +30,7 @@ export default async function FeedPage() {
     return (
         <AppLayout>
             <div className="max-w-2xl mx-auto">
+                <InstallPrompt />
                 <h1 className="text-2xl font-heading font-bold text-terracotta mb-6">Community Feed</h1>
                 <CreatePost />
                 <div className="space-y-6">

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Eye, EyeOff, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');
@@ -77,6 +78,7 @@ export default function SignupPage() {
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-terracotta">HugLoom</h1>
                 <p className="text-muted-foreground mt-2">Someone's light is always on for you.</p>
+                <InstallPrompt />
             </div>
 
             <div className="w-full max-w-md bg-card p-8 rounded-2xl shadow-xl border border-border">
