@@ -6,7 +6,6 @@ import { Download } from "lucide-react";
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isStandalone, setIsStandalone] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         // Check if already in standalone mode
@@ -16,12 +15,9 @@ export function InstallPrompt() {
             return;
         }
 
-        // Check if mobile device
-        const checkMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        setIsMobile(checkMobile);
-        console.log('Is mobile device:', checkMobile);
+        console.log('Waiting for beforeinstallprompt event...');
 
-        // Listen for beforeinstallprompt event (Android/Chrome/Edge)
+        // Listen for beforeinstallprompt event (Works on Desktop Chrome/Edge AND Mobile)
         const handleBeforeInstallPrompt = (e: any) => {
             console.log('🎉 beforeinstallprompt event fired!');
             e.preventDefault();
@@ -64,7 +60,7 @@ export function InstallPrompt() {
             if (isIOS) {
                 alert("To install:\n\n1. Tap the Share button (⬆️)\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add'");
             } else {
-                alert("To install:\n\n1. Tap the menu (⋮) in the top right\n2. Tap 'Install app' or 'Add to Home screen'\n\nIf you don't see this option, the app may already be installed or your browser doesn't support installation.");
+                alert("To install:\n\n• Desktop: Look for the install icon (⊕) in the address bar\n• Mobile Chrome: Tap menu (⋮) → 'Install app'\n\nIf you don't see this option, the app may already be installed or your browser doesn't support installation.");
             }
         }
     };
@@ -74,8 +70,8 @@ export function InstallPrompt() {
         return null;
     }
 
-    // Show button on mobile devices (even if beforeinstallprompt hasn't fired)
-    if (!isMobile && !deferredPrompt) {
+    // Show button when install prompt is available (works on both desktop and mobile)
+    if (!deferredPrompt) {
         return null;
     }
 
