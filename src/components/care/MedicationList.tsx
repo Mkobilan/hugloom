@@ -35,17 +35,17 @@ export const MedicationList = ({ medications, onEdit, onDelete }: MedicationList
             </h2>
             <div className="space-y-2">
                 {medications.map(med => (
-                    <div key={med.id} className="bg-soft-blush p-4 rounded-xl border border-slate-blue/20 flex items-center justify-between">
+                    <div key={med.id} className="bg-[#3C3434] p-4 rounded-xl border border-terracotta/10 flex items-center justify-between transition-all hover:bg-[#453C3C] hover:shadow-md group">
                         <div className="flex items-center gap-4 flex-1">
                             <div className="p-3 bg-terracotta/10 rounded-xl text-terracotta">
                                 <Pill className="w-5 h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-gray-900">{med.name}</h3>
-                                <p className="text-sm text-gray-700">
+                                <h3 className="font-bold text-white">{med.name}</h3>
+                                <p className="text-sm text-gray-300">
                                     {med.dosage} {med.dosage && med.frequency && '•'} {med.frequency}
                                 </p>
-                                <p className="text-xs text-gray-700 mt-1">
+                                <p className="text-xs text-gray-400 mt-1">
                                     {med.times.length} time{med.times.length !== 1 ? 's' : ''} daily: {med.times.join(', ')}
                                 </p>
                             </div>
@@ -59,7 +59,7 @@ export const MedicationList = ({ medications, onEdit, onDelete }: MedicationList
                             </button>
                             <button
                                 onClick={() => onDelete(med.id, 'medication')}
-                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>

@@ -23,10 +23,10 @@ export const TaskFilters = ({ activeFilter, onFilterChange }: TaskFiltersProps) 
                     key={value}
                     onClick={() => onFilterChange(value)}
                     className={cn(
-                        "px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all",
+                        "px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all border",
                         activeFilter === value
-                            ? "bg-slate-blue text-white shadow-md"
-                            : "bg-soft-blush text-muted-foreground hover:bg-dusty-rose"
+                            ? "bg-slate-blue text-white border-slate-blue shadow-md"
+                            : "bg-[#3C3434] text-gray-300 border-terracotta/10 hover:bg-[#453C3C] hover:shadow-md"
                     )}
                 >
                     {icon} {label}

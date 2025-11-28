@@ -140,8 +140,8 @@ const TaskCard = ({
     onDelete: (id: string, category: string) => void;
     variant: 'overdue' | 'upcoming' | 'completed';
 }) => {
-    const borderColor = variant === 'overdue' ? 'border-red-200' : variant === 'completed' ? 'border-sage/30' : 'border-slate-blue/20';
-    const bgColor = variant === 'overdue' ? 'bg-red-50' : variant === 'completed' ? 'bg-sage/5' : 'bg-soft-blush';
+    const borderColor = variant === 'overdue' ? 'border-red-500/30' : variant === 'completed' ? 'border-sage/30' : 'border-terracotta/10';
+    const bgColor = 'bg-[#3C3434]';
 
     const getCategoryIcon = (category: string) => {
         switch (category) {
@@ -165,7 +165,7 @@ const TaskCard = ({
     const displayDate = getDisplayDate(task.date);
 
     return (
-        <div className={cn("p-4 rounded-xl border flex items-center justify-between", borderColor, bgColor)}>
+        <div className={cn("p-4 rounded-xl border flex items-center justify-between transition-all hover:bg-[#453C3C] hover:shadow-md group", borderColor, bgColor)}>
             <div className="flex items-center gap-4 flex-1">
                 <button
                     onClick={() => onComplete(task)}
@@ -180,14 +180,14 @@ const TaskCard = ({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs">{getCategoryIcon(task.taskCategory)}</span>
-                        <span className={cn("text-xs font-bold px-2 py-0.5 rounded", variant === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-slate-blue/10 text-slate-blue')}>
+                        <span className={cn("text-xs font-bold px-2 py-0.5 rounded", variant === 'overdue' ? 'bg-red-500/10 text-red-400' : 'bg-slate-blue/10 text-slate-blue')}>
                             {displayDate ? `${displayDate} • ` : ''}{task.scheduledTime}
                         </span>
-                        <h3 className={cn("font-bold truncate", task.isCompleted ? 'line-through text-muted-foreground' : 'text-gray-900')}>
+                        <h3 className={cn("font-bold truncate", task.isCompleted ? 'line-through text-gray-500' : 'text-white')}>
                             {task.name}
                         </h3>
                     </div>
-                    <p className="text-sm text-gray-700 truncate">
+                    <p className="text-sm text-gray-300 truncate">
                         {task.dosage && task.frequency ? `${task.dosage} • ${task.frequency}` : task.notes}
                     </p>
                 </div>
@@ -201,7 +201,7 @@ const TaskCard = ({
                 </button>
                 <button
                     onClick={() => onDelete(task.id, task.taskCategory)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>

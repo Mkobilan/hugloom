@@ -143,24 +143,24 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
 
     return (
         <div className="space-y-6 relative">
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-terracotta/10">
+            <div className="bg-[#3C3434] p-6 rounded-3xl shadow-sm border border-terracotta/10">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="font-heading font-bold text-2xl text-gray-900">
+                    <h2 className="font-heading font-bold text-2xl text-white">
                         {format(currentDate, 'MMMM yyyy')}
                     </h2>
                     <div className="flex gap-2">
-                        <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-2 hover:bg-cream rounded-full transition-colors">
-                            <ChevronLeft className="w-6 h-6 text-muted-foreground" />
+                        <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                            <ChevronLeft className="w-6 h-6 text-white" />
                         </button>
-                        <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-2 hover:bg-cream rounded-full transition-colors">
-                            <ChevronRight className="w-6 h-6 text-muted-foreground" />
+                        <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                            <ChevronRight className="w-6 h-6 text-white" />
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+                <div className="grid grid-cols-7 gap-px bg-terracotta/10 rounded-lg overflow-hidden border border-terracotta/10">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                        <div key={`day-header-${index}`} className="bg-soft-blush p-3 text-center text-sm font-bold text-gray-700">
+                        <div key={`day-header-${index}`} className="bg-[#3C3434] p-3 text-center text-sm font-bold text-white">
                             {day}
                         </div>
                     ))}
@@ -179,14 +179,14 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
                                     setIsDayModalOpen(true);
                                 }}
                                 className={cn(
-                                    "min-h-[140px] bg-white p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50 cursor-pointer",
-                                    !isCurrentMonth && "bg-gray-50/50 text-gray-400"
+                                    "min-h-[140px] bg-[#3C3434] p-2 flex flex-col gap-1 transition-colors hover:bg-[#453C3C] cursor-pointer",
+                                    !isCurrentMonth && "bg-[#3C3434]/50 text-gray-500"
                                 )}
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <span className={cn(
                                         "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full",
-                                        isToday ? "bg-terracotta text-white" : "text-gray-700"
+                                        isToday ? "bg-terracotta text-white" : "text-white"
                                     )}>
                                         {format(day, 'd')}
                                     </span>
