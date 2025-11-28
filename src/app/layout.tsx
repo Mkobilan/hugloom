@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Inter, Kalam } from "next/font/google";
 import "./globals.css";
 
@@ -23,6 +23,18 @@ const kalam = Kalam({
 export const metadata: Metadata = {
   title: "HugLoom - Caregiver Community",
   description: "A social hub for caregivers.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HugLoom",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#e11d48",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 import { Toaster } from 'sonner';
