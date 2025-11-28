@@ -6,6 +6,7 @@ import { Download } from "lucide-react";
 export function InstallPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isStandalone, setIsStandalone] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         // Check if already in standalone mode
@@ -13,6 +14,10 @@ export function InstallPrompt() {
             setIsStandalone(true);
             return;
         }
+
+        // Check if mobile device
+        const checkMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        setIsMobile(checkMobile);
 
         // Listen for beforeinstallprompt event (Android/Chrome/Edge)
         const handleBeforeInstallPrompt = (e: any) => {
@@ -28,30 +33,35 @@ export function InstallPrompt() {
     }, []);
 
     const handleInstallClick = async () => {
-        if (!deferredPrompt) {
-            return;
-        }
+        if (deferredPrompt) {
+            // We have the native prompt - use it
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
 
-        // Show the native install prompt
-        deferredPrompt.prompt();
+            if (outcome === "accepted") {
+                console.log("User accepted the install prompt");
+            }
 
-        // Wait for the user's response
-        const { outcome } = await deferredPrompt.userChoice;
-
-        if (outcome === "accepted") {
-            console.log("User accepted the install prompt");
+            setDeferredPrompt(null);
         } else {
-            console.log("User dismissed the install prompt");
-        }
+            // Fallback: Guide user to browser's install option
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        // Clear the deferredPrompt so it can only be used once
-        setDeferredPrompt(null);
+            if (isIOS) {
+                alert("To install:\n\n1. Tap the Share button (⬆️)\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add'");
+            } else {
+                alert("To install:\n\n1. Tap the menu (⋮) in the top right\n2. Tap 'Install app' or 'Add to Home screen'\n\nIf you don't see this option, the app may already be installed or your browser doesn't support installation.");
+            }
+        }
     };
 
-    // Only show the button if:
-    // 1. Not already installed (standalone mode)
-    // 2. Browser supports install (deferredPrompt is available)
-    if (isStandalone || !deferredPrompt) {
+    // Hide if already installed
+    if (isStandalone) {
+        return null;
+    }
+
+    // Show button on mobile devices (even if beforeinstallprompt hasn't fired)
+    if (!isMobile && !deferredPrompt) {
         return null;
     }
 
