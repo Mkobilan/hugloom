@@ -8,7 +8,7 @@ import { SearchBar } from './SearchBar';
 import { createClient } from '@/lib/supabase/client';
 import { MobileNav } from './MobileNav';
 
-export const TopBar = () => {
+export const TopBar = ({ onMoodCheckClick }: { onMoodCheckClick: () => void }) => {
     const [username, setUsername] = useState<string>('');
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -95,7 +95,11 @@ export const TopBar = () => {
                 </div>
             </header>
 
-            <MobileNav isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />
+            <MobileNav
+                isOpen={isMobileNavOpen}
+                onClose={() => setIsMobileNavOpen(false)}
+                onMoodCheckClick={onMoodCheckClick}
+            />
         </>
     );
 };

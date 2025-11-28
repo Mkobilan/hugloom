@@ -20,25 +20,33 @@ import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-const NavCard = ({ href, icon: Icon, label, color, subtitle }: { href: string; icon: any; label: string; color: string; subtitle?: string }) => {
+const NavCard = ({ href, icon: Icon, label, color, subtitle, onClick }: { href: string; icon: any; label: string; color: string; subtitle?: string; onClick?: () => void }) => {
     const pathname = usePathname();
     const isActive = pathname === href;
 
+    const content = (
+        <div className={cn(
+            "p-4 rounded-2xl flex items-center gap-4 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer mb-3 shadow-md border border-white/10",
+            color,
+            isActive && "ring-2 ring-offset-2 ring-white/50 ring-offset-transparent"
+        )}>
+            <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                <Icon className="w-5 h-5" />
+            </div>
+            <div>
+                <h3 className="font-bold text-sm">{label}</h3>
+                {subtitle && <p className="text-[10px] opacity-80">{subtitle}</p>}
+            </div>
+        </div>
+    );
+
+    if (onClick) {
+        return <div onClick={onClick}>{content}</div>;
+    }
+
     return (
         <Link href={href}>
-            <div className={cn(
-                "p-4 rounded-2xl flex items-center gap-4 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer mb-3 shadow-md border border-white/10",
-                color,
-                isActive && "ring-2 ring-offset-2 ring-white/50 ring-offset-transparent"
-            )}>
-                <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                    <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-sm">{label}</h3>
-                    {subtitle && <p className="text-[10px] opacity-80">{subtitle}</p>}
-                </div>
-            </div>
+            {content}
         </Link>
     );
 };
@@ -61,7 +69,7 @@ const SimpleNavItem = ({ href, icon: Icon, label, onClick, className }: { href?:
     return <Link href={href || '#'}>{content}</Link>;
 };
 
-export const RightColumnNav = () => {
+export const RightColumnNav = ({ onMoodCheckClick }: { onMoodCheckClick: () => void }) => {
     const router = useRouter();
     const supabase = createClient();
 
@@ -135,7 +143,8 @@ export const RightColumnNav = () => {
                     icon={Smile}
                     label="Mood Check"
                     color="bg-purple-500 text-white hover:bg-purple-600"
-                    subtitle="How are you?"
+                    subtitle="Just Breathe"
+                    onClick={onMoodCheckClick}
                 />
             </div>
 

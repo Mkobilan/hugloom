@@ -48,9 +48,10 @@ const NavItem = ({ href, icon: Icon, label, color, onClick, subtitle }: { href: 
 interface MobileNavProps {
     isOpen: boolean;
     onClose: () => void;
+    onMoodCheckClick: () => void;
 }
 
-export const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
+export const MobileNav = ({ isOpen, onClose, onMoodCheckClick }: MobileNavProps) => {
     const router = useRouter();
     const supabase = createClient();
 
@@ -171,8 +172,11 @@ export const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                             icon={Smile}
                             label="Mood Check"
                             color="bg-purple-500"
-                            subtitle="How are you?"
-                            onClick={onClose}
+                            subtitle="Just Breathe"
+                            onClick={() => {
+                                onClose();
+                                onMoodCheckClick();
+                            }}
                         />
                     </div>
 

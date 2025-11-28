@@ -1,11 +1,16 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import { TopBar } from './TopBar';
 import { RightColumnNav } from './RightColumnNav';
+import { MoodCheckModal } from './MoodCheckModal';
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
+    const [showMoodCheck, setShowMoodCheck] = useState(false);
+
     return (
         <div className="min-h-screen bg-background font-sans text-foreground">
-            <TopBar />
+            <TopBar onMoodCheckClick={() => setShowMoodCheck(true)} />
             <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
                 {/* Main Content Area - Centered Feed/Page */}
                 <main className="flex-1 min-w-0 pb-24 lg:pb-6">
@@ -13,8 +18,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 </main>
 
                 {/* Right Column Navigation - Hidden on mobile, visible on desktop */}
-                <RightColumnNav />
+                <RightColumnNav onMoodCheckClick={() => setShowMoodCheck(true)} />
             </div>
+
+            <MoodCheckModal
+                isOpen={showMoodCheck}
+                onClose={() => setShowMoodCheck(false)}
+            />
 
             {/* Mobile Bottom Nav - Only visible on small screens if we want to keep it for mobile, 
                 but user asked to remove it. I will remove it for now as per instructions, 
