@@ -47,27 +47,27 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
                 onClick={onClose}
             />
 
             {/* Modal */}
-            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="relative w-full max-w-2xl max-h-[80vh] flex flex-col bg-[#3C3434] rounded-3xl shadow-2xl border border-white/10 animate-in zoom-in-95 duration-200 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between p-6 border-b border-white/10">
                     <div>
-                        <h2 className="font-heading font-bold text-2xl text-gray-900">
+                        <h2 className="font-heading font-bold text-2xl text-white">
                             {format(selectedDay, 'EEEE, MMMM d, yyyy')}
                         </h2>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-white/60 mt-1">
                             {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'} scheduled
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white"
                     >
-                        <X className="w-6 h-6 text-gray-600" />
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
@@ -75,19 +75,19 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                     {tasks.length === 0 ? (
                         <div className="text-center py-12">
-                            <p className="text-gray-500 text-lg">No tasks scheduled for this day</p>
+                            <p className="text-white/50 text-lg">No tasks scheduled for this day</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {tasks.map((task) => (
                                 <div
                                     key={task.id}
-                                    className="bg-gray-50 rounded-2xl p-4 border border-gray-200 hover:border-gray-300 transition-colors"
+                                    className="bg-[#4A4042] rounded-2xl p-4 border border-white/10 hover:border-white/30 transition-colors"
                                 >
                                     <div className="flex items-start gap-4">
                                         {/* Time */}
                                         <div className="flex-shrink-0 text-center min-w-[80px]">
-                                            <div className="font-bold text-lg text-gray-900">
+                                            <div className="font-bold text-lg text-white">
                                                 {task.isMedication
                                                     ? task.time
                                                     : format(new Date(task.start_time), 'h:mm a')}
@@ -97,7 +97,7 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
                                         {/* Task Details */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <h3 className="font-semibold text-gray-900 text-lg">
+                                                <h3 className="font-semibold text-white text-lg">
                                                     {task.title}
                                                 </h3>
                                                 <span className={cn(
@@ -108,7 +108,7 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
                                                 </span>
                                             </div>
                                             {task.description && (
-                                                <p className="text-gray-700 text-sm leading-relaxed">
+                                                <p className="text-white/70 text-sm leading-relaxed">
                                                     {task.description}
                                                 </p>
                                             )}
@@ -121,7 +121,7 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-200">
+                <div className="p-6 border-t border-white/10">
                     <button
                         onClick={onClose}
                         className="w-full bg-terracotta text-white font-semibold py-3 px-6 rounded-full hover:bg-terracotta/90 transition-colors"
