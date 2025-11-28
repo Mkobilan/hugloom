@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor, Bell } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAppearance } from '@/components/providers/AppearanceProvider';
+import { updateNotificationSettings, getNotificationSettings } from '@/lib/notifications';
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -51,7 +52,9 @@ export default function SettingsPage() {
                 .eq('id', user.id)
                 .single();
 
-            setProfile(profileData);
+            const notificationSettings = await getNotificationSettings(user.id);
+
+            setProfile({ ...profileData, notification_settings: notificationSettings });
         } catch (error) {
             console.error('Error loading user data:', error);
         } finally {
@@ -385,6 +388,146 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </div>
+                {/* Notification Settings */}
+                <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <Bell className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Notifications</h2>
+                    </div>
+
+                    <div className="space-y-8">
+                        {/* Global Toggles */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center justify-between p-4 bg-[#4A4042] rounded-xl border border-white/5">
+                                <div>
+                                    <h3 className="font-medium text-white">Push Notifications</h3>
+                                    <p className="text-xs text-white/60">Receive browser notifications</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={profile?.notification_settings?.push_notifications ?? true}
+                                        onChange={async (e) => {
+                                            const newVal = e.target.checked;
+                                            // Optimistic update
+                                            const newSettings = { ...profile?.notification_settings, push_notifications: newVal };
+                                            setProfile({ ...profile, notification_settings: newSettings });
+
+                                            // Request permission if enabling
+                                            if (newVal && Notification.permission === 'default') {
+                                                await Notification.requestPermission();
+                                            }
+
+                                            await updateNotificationSettings(user.id, { push_notifications: newVal });
+                                        }}
+                                    />
+                                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-terracotta"></div>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-[#4A4042] rounded-xl border border-white/5">
+                                <div>
+                                    <h3 className="font-medium text-white">Email Notifications</h3>
+                                    <p className="text-xs text-white/60">Receive updates via email</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={profile?.notification_settings?.email_notifications ?? true}
+                                        onChange={async (e) => {
+                                            const newVal = e.target.checked;
+                                            const newSettings = { ...profile?.notification_settings, email_notifications: newVal };
+                                            setProfile({ ...profile, notification_settings: newSettings });
+                                            await updateNotificationSettings(user.id, { email_notifications: newVal });
+                                        }}
+                                    />
+                                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-terracotta"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Categories */}
+                        <div>
+                            <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider opacity-70">Notification Types</h3>
+                            <div className="space-y-3">
+                                {[
+                                    { id: 'messages', label: 'New Messages', desc: 'When you receive a new chat message' },
+                                    { id: 'care_circle', label: 'Care Circle Activity', desc: 'New tasks or completed tasks' },
+                                    { id: 'feed', label: 'Feed Interactions', desc: 'Hugs, comments, and shares on your posts' },
+                                    { id: 'care_task', label: 'Care Task Reminders', desc: 'Reminders for medications and appointments' },
+                                    { id: 'calendar', label: 'Calendar Reminders', desc: 'Upcoming events and schedule changes' },
+                                    { id: 'comment_reply', label: 'Comment Replies', desc: 'When someone replies to your comment' },
+                                    { id: 'follower', label: 'New Followers', desc: 'When someone follows you' },
+                                ].map((item) => (
+                                    <div key={item.id} className="flex items-center justify-between py-2">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">{item.label}</p>
+                                            <p className="text-xs text-white/50">{item.desc}</p>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={profile?.notification_settings?.categories?.[item.id] ?? true}
+                                                onChange={async (e) => {
+                                                    const newVal = e.target.checked;
+                                                    const currentCats = profile?.notification_settings?.categories || {};
+                                                    const newCats = { ...currentCats, [item.id]: newVal };
+                                                    const newSettings = { ...profile?.notification_settings, categories: newCats };
+
+                                                    setProfile({ ...profile, notification_settings: newSettings });
+                                                    await updateNotificationSettings(user.id, { categories: newCats });
+                                                }}
+                                            />
+                                            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-terracotta"></div>
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Reminder Timing */}
+                        <div>
+                            <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider opacity-70">Reminder Timing</h3>
+                            <p className="text-sm text-white/70 mb-3">Send reminders before tasks/appointments:</p>
+                            <div className="flex flex-wrap gap-3">
+                                {[15, 30, 60].map((minutes) => {
+                                    const currentReminders = profile?.notification_settings?.care_task_reminder_minutes || [15];
+                                    const isSelected = currentReminders.includes(minutes);
+
+                                    return (
+                                        <button
+                                            key={minutes}
+                                            onClick={async () => {
+                                                let newReminders;
+                                                if (isSelected) {
+                                                    newReminders = currentReminders.filter((m: number) => m !== minutes);
+                                                } else {
+                                                    newReminders = [...currentReminders, minutes];
+                                                }
+
+                                                const newSettings = { ...profile?.notification_settings, care_task_reminder_minutes: newReminders };
+                                                setProfile({ ...profile, notification_settings: newSettings });
+                                                await updateNotificationSettings(user.id, { care_task_reminder_minutes: newReminders });
+                                            }}
+                                            className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${isSelected
+                                                ? 'bg-terracotta border-terracotta text-white'
+                                                : 'bg-[#4A4042] border-white/10 text-white/70 hover:border-white/30'
+                                                }`}
+                                        >
+                                            {minutes} Minutes
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Appearance Section */}
                 <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
                     <div className="flex items-center gap-3 mb-6">

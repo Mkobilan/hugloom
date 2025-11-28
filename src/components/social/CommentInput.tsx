@@ -94,6 +94,9 @@ export const CommentInput = ({
 
             if (error) throw error;
 
+            // Notification handled by DB trigger
+
+
             setContent('');
             removeImage();
             onCommentAdded();

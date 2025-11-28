@@ -264,10 +264,55 @@ export const CareDashboard = ({ circleId, isOwner = false }: CareDashboardProps)
                 }
             }
 
+            // Fetch item details before deleting to get name and circle_id for notification
+            const { data: itemToDelete } = await supabase
+                .from(table)
+                .select('*')
+                .eq('id', idToDelete)
+                .single();
+
             const { error } = await supabase
                 .from(table)
                 .delete()
                 .eq('id', idToDelete);
+
+            if (error) throw error;
+
+            // Notify circle members if it was a circle task
+            if (itemToDelete?.circle_id) {
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        const { data: members } = await supabase
+                            .from('care_circle_members')
+                            .select('user_id')
+                            .eq('circle_id', itemToDelete.circle_id)
+                            .neq('user_id', user.id);
+
+                        if (members) {
+                            const { createNotification } = await import('@/lib/notifications');
+                            const taskName = itemToDelete.name || itemToDelete.title || 'Task';
+
+                            await Promise.all(members.map(m =>
+                                createNotification(
+                                    m.user_id,
+                                    'care_task',
+                                    'Care Task Deleted',
+                                    `${user.user_metadata.full_name || user.email} deleted task: ${taskName}`,
+                                    `/care-circles/${itemToDelete.circle_id}`,
+                                    {
+                                        circle_id: itemToDelete.circle_id,
+                                        task_name: taskName,
+                                        actor_id: user.id
+                                    }
+                                )
+                            ));
+                        }
+                    }
+                } catch (notifError) {
+                    console.error('Error sending notifications:', notifError);
+                }
+            }
 
             if (error) throw error;
 

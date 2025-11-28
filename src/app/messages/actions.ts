@@ -47,6 +47,9 @@ export async function sendMessage(conversationId: string, content: string, media
         throw new Error('Failed to send message')
     }
 
+    // Notification handled by DB trigger
+
+
     revalidatePath(`/messages/${conversationId}`)
     revalidatePath('/messages')
 }

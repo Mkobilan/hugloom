@@ -8,6 +8,8 @@ import { SearchBar } from './SearchBar';
 import { createClient } from '@/lib/supabase/client';
 import { MobileNav } from './MobileNav';
 
+import { NotificationBell } from '../notifications/NotificationBell';
+
 export const TopBar = ({ onMoodCheckClick }: { onMoodCheckClick: () => void }) => {
     const [username, setUsername] = useState<string>('');
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -76,6 +78,8 @@ export const TopBar = ({ onMoodCheckClick }: { onMoodCheckClick: () => void }) =
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                    <NotificationBell />
+
                     {/* Profile Link */}
                     <Link href={username && username !== 'there' ? `/u/${username}` : '/profile'}>
                         <div className="w-10 h-10 rounded-full bg-slate-blue/20 border border-slate-blue/40 overflow-hidden cursor-pointer hover:ring-2 hover:ring-slate-blue/50 transition-all">

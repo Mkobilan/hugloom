@@ -71,6 +71,9 @@ export const PostCard = ({ post }: { post: any }) => {
                         type: 'hug'
                     });
                 if (error) throw error;
+
+                // Notification handled by DB trigger
+
             } else {
                 // Remove reaction
                 const { error } = await supabase

@@ -209,6 +209,9 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
 
             onSave();
             onClose();
+
+            // Notification handled by DB trigger
+
         } catch (error) {
             console.error('Error saving task:', error);
             alert('Error saving task');

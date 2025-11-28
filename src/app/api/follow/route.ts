@@ -29,11 +29,12 @@ export async function POST(request: Request) {
                 follower_id: user.id,
                 following_id: followingId
             })
-
         if (error) {
             console.error('Follow error:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
+
+        // Notification handled by DB trigger
 
         // Get updated counts
         const [followerCount, followingCount] = await Promise.all([
@@ -46,7 +47,6 @@ export async function POST(request: Request) {
                 .select('id', { count: 'exact', head: true })
                 .eq('follower_id', followingId)
         ])
-
         return NextResponse.json({
             success: true,
             isFollowing: true,
