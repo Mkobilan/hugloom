@@ -11,6 +11,7 @@ export function InstallPrompt() {
     useEffect(() => {
         // Check if already in standalone mode
         if (window.matchMedia("(display-mode: standalone)").matches) {
+            console.log('App is already in standalone mode');
             setIsStandalone(true);
             return;
         }
@@ -18,14 +19,27 @@ export function InstallPrompt() {
         // Check if mobile device
         const checkMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         setIsMobile(checkMobile);
+        console.log('Is mobile device:', checkMobile);
 
         // Listen for beforeinstallprompt event (Android/Chrome/Edge)
         const handleBeforeInstallPrompt = (e: any) => {
+            console.log('🎉 beforeinstallprompt event fired!');
             e.preventDefault();
             setDeferredPrompt(e);
         };
 
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+        // Log if event hasn't fired after 3 seconds
+        setTimeout(() => {
+            if (!deferredPrompt) {
+                console.log('⚠️ beforeinstallprompt has not fired yet. This could mean:');
+                console.log('1. Service Worker is still registering');
+                console.log('2. PWA criteria not met');
+                console.log('3. App already installed');
+                console.log('4. Browser has shown prompt recently');
+            }
+        }, 3000);
 
         return () => {
             window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);

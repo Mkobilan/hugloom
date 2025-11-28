@@ -1,23 +1,16 @@
 // Service Worker for HugLoom PWA
 const CACHE_NAME = 'hugloom-v1';
-const urlsToCache = [
-    '/',
-    '/manifest.webmanifest',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
-];
 
-// Install event - cache essential resources
+// Install event - activate immediately
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(urlsToCache))
-            .then(() => self.skipWaiting())
-    );
+    console.log('Service Worker installing...');
+    // Skip waiting to activate immediately
+    self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - take control immediately
 self.addEventListener('activate', (event) => {
+    console.log('Service Worker activating...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -27,21 +20,30 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        }).then(() => self.clients.claim())
+        }).then(() => {
+            // Take control of all pages immediately
+            return self.clients.claim();
+        })
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request)
+        fetch(event.request)
             .then((response) => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            }
-            )
+                // Clone the response before caching
+                const responseToCache = response.clone();
+
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseToCache);
+                });
+
+                return response;
+            })
+            .catch(() => {
+                // If network fails, try cache
+                return caches.match(event.request);
+            })
     );
 });
