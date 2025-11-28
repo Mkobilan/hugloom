@@ -25,9 +25,6 @@ export const Greeting = ({ username }: GreetingProps) => {
             <h2 className="text-2xl font-heading font-bold text-terracotta mb-2">
                 {`${greeting}, ${username} ☕`}
             </h2>
-            <p className="text-muted-foreground font-medium">
-                14 caregivers have sent you hugs today.
-            </p>
         </section>
     );
 };
