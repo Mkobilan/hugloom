@@ -11,6 +11,7 @@ interface CareCircle {
     created_by: string;
     created_at: string;
     my_role: string;
+    admin_avatar_url?: string;
 }
 
 export const CareCircleList = ({ circles }: { circles: CareCircle[] }) => {
@@ -95,18 +96,26 @@ export const CareCircleList = ({ circles }: { circles: CareCircle[] }) => {
                         <Link
                             key={circle.id}
                             href={`/care-circles/${circle.id}`}
-                            className="block p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-slate-blue/30 transition-all group"
+                            className="block p-4 bg-[#3C3434] rounded-xl border border-terracotta/10 shadow-sm hover:shadow-md hover:border-slate-blue/30 transition-all group"
                         >
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-soft-blush flex items-center justify-center text-terracotta font-bold text-lg">
-                                        {circle.name.substring(0, 2).toUpperCase()}
+                                    <div className="w-12 h-12 rounded-full bg-soft-blush flex items-center justify-center text-terracotta font-bold text-lg overflow-hidden">
+                                        {circle.admin_avatar_url ? (
+                                            <img
+                                                src={circle.admin_avatar_url}
+                                                alt={circle.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            circle.name.substring(0, 2).toUpperCase()
+                                        )}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900 group-hover:text-slate-blue transition-colors">
+                                        <h3 className="font-bold text-white group-hover:text-slate-blue transition-colors">
                                             {circle.name}
                                         </h3>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-gray-300">
                                             Role: <span className="capitalize">{circle.my_role}</span>
                                         </p>
                                     </div>

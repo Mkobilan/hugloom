@@ -70,7 +70,10 @@ export async function getCareCircles() {
         id,
         name,
         created_by,
-        created_at
+        created_at,
+        creator:profiles!care_circles_created_by_fkey (
+            avatar_url
+        )
       )
     `)
         .eq("user_id", user.id);
@@ -83,6 +86,7 @@ export async function getCareCircles() {
     // Flatten the structure
     return data.map((item: any) => ({
         ...item.care_circles,
+        admin_avatar_url: item.care_circles?.creator?.avatar_url,
         my_role: item.role,
     }));
 }
@@ -150,6 +154,7 @@ export async function getCircleDetails(circleId: string) {
             joined_at: m.joined_at,
         })) || [],
         myRole: membership.role,
+        currentUserId: user.id,
     };
 }
 
@@ -198,4 +203,39 @@ export async function addMemberToCircle(circleId: string, email: string) {
     }
 
     revalidatePath(`/care-circles/${circleId}`);
+}
+
+export async function removeMemberFromCircle(circleId: string, userId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error("Unauthorized");
+    }
+
+    // 1. Verify requester is admin
+    const { data: requesterMembership } = await supabase
+        .from("care_circle_members")
+        .select("role")
+        .eq("circle_id", circleId)
+        .eq("user_id", user.id)
+        .single();
+
+    if (!requesterMembership || requesterMembership.role !== 'admin') {
+        throw new Error("Only admins can remove members");
+    }
+
+    // 2. Remove member
+    const { error } = await supabase
+        .from("care_circle_members")
+        .delete()
+        .eq("circle_id", circleId)
+        .eq("user_id", userId);
+
+    if (error) {
+        throw new Error("Failed to remove member");
+    }
+
+    revalidatePath(`/care-circles/${circleId}`);
+    revalidatePath("/care-circles");
 }
