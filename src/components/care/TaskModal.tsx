@@ -223,37 +223,39 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
     const Icon = config.icon;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-soft-blush rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-soft-blush border-b border-slate-blue/20 p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Icon className={`w-5 h-5 text-deep-slate`} />
-                        <h2 className="text-xl font-heading font-bold text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-[#3C3434] rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-white/10 custom-scrollbar">
+                <div className="sticky top-0 bg-[#3C3434] border-b border-white/10 p-6 flex items-center justify-between z-10">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full bg-${config.color.replace('text-', '')}/10`}>
+                            <Icon className={`w-6 h-6 ${config.color}`} />
+                        </div>
+                        <h2 className="text-xl font-bold text-white">
                             {editingTask ? 'Edit' : 'Add'} {config.label}
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-dusty-rose rounded-full transition-colors text-gray-900">
-                        <X className="w-5 h-5 text-gray-900" />
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white">
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-5">
+                <div className="p-6 space-y-6">
                     {/* Task Type Selector */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Task Type</label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <label className="block text-sm font-bold text-white mb-3">Task Type</label>
+                        <div className="grid grid-cols-2 gap-3">
                             {Object.entries(TASK_TYPE_CONFIG).map(([type, typeConfig]) => {
                                 const TypeIcon = typeConfig.icon;
                                 const isSelected = formData.taskCategory === type;
                                 return (
                                     <button key={type} type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, taskCategory: type as any }))}
-                                        className={`p-3 rounded-xl border-2 transition-all flex items-center gap-2 ${isSelected ? 'border-slate-blue bg-slate-blue/10' : 'border-border hover:border-slate-blue/50'
+                                        className={`p-3 rounded-xl border text-sm font-medium transition-all text-left flex items-center gap-2 ${isSelected
+                                            ? 'bg-slate-blue border-slate-blue text-white'
+                                            : 'bg-[#4A4042] border-white/10 text-white/70 hover:border-white/30'
                                             }`}>
-                                        <TypeIcon className={`w-5 h-5 ${isSelected ? 'text-deep-slate' : 'text-gray-700'}`} />
-                                        <span className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>
-                                            {typeConfig.label}
-                                        </span>
+                                        <TypeIcon className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-white/70'}`} />
+                                        <span>{typeConfig.label}</span>
                                     </button>
                                 );
                             })}
@@ -261,34 +263,33 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                            Name <span className="text-red-500">*</span>
+                        <label className="block text-sm font-bold text-white mb-2">
+                            Name <span className="text-red-400">*</span>
                         </label>
                         <input type="text" value={formData.name}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                             placeholder="e.g., Lisinopril"
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                         />
                     </div>
 
                     {formData.taskCategory === 'medication' && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">Dosage</label>
+                            <label className="block text-sm font-bold text-white mb-2">Dosage</label>
                             <input type="text" value={formData.dosage}
                                 onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
                                 placeholder="e.g., 10mg"
-                                className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all"
                             />
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Frequency</label>
+                        <label className="block text-sm font-bold text-white mb-2">Frequency</label>
                         <select value={formData.frequency}
                             onChange={(e) => {
                                 const newFreq = e.target.value;
                                 setFormData(prev => {
-                                    // Auto-adjust times based on frequency for non-medication tasks
                                     let newTimes = prev.times;
                                     if (prev.taskCategory !== 'medication') {
                                         if (newFreq === 'Once daily' && prev.times.length !== 1) {
@@ -302,7 +303,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                                     return { ...prev, frequency: newFreq, times: newTimes };
                                 });
                             }}
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all">
+                            className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all">
                             <option value="">Select frequency</option>
                             <option value="One-time">One-time</option>
                             <option value="Once daily">Once daily</option>
@@ -315,26 +316,26 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                     {(formData.taskCategory === 'appointment' || formData.taskCategory === 'task' || formData.taskCategory === 'personal_care') && (
                         <>
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Start Date <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Start Date <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="date"
                                     value={formData.startDate}
                                     onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                                    className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                    className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all [color-scheme:dark]"
                                 />
                             </div>
                             {(formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    <label className="block text-sm font-bold text-white mb-2">
                                         End Date (Optional)
                                     </label>
                                     <input
                                         type="date"
                                         value={formData.endDate}
                                         onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                                        className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all [color-scheme:dark]"
                                     />
                                 </div>
                             )}
@@ -343,12 +344,12 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-medium text-gray-900">
-                                {formData.times.length > 1 ? 'Times' : 'Time'} <span className="text-red-500">*</span>
+                            <label className="block text-sm font-bold text-white">
+                                {formData.times.length > 1 ? 'Times' : 'Time'} <span className="text-red-400">*</span>
                             </label>
                             {(formData.taskCategory === 'medication' || formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
                                 <button type="button" onClick={addTime}
-                                    className="flex items-center gap-1 text-xs text-slate-blue hover:text-deep-slate transition-colors">
+                                    className="flex items-center gap-1 text-xs text-terracotta hover:text-terracotta/80 transition-colors font-bold">
                                     <Plus className="w-4 h-4" /> Add Time
                                 </button>
                             )}
@@ -356,14 +357,14 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                         <div className="space-y-2">
                             {formData.times.map((time, index) => (
                                 <div key={index} className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-gray-700" />
+                                    <Clock className="w-4 h-4 text-white/50" />
                                     <input type="time" value={time}
                                         onChange={(e) => updateTime(index, e.target.value)}
-                                        className="flex-1 px-4 py-2 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all"
+                                        className="flex-1 px-4 py-2 rounded-xl bg-[#4A4042] border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all [color-scheme:dark]"
                                     />
                                     {formData.times.length > 1 && (formData.taskCategory === 'medication' || formData.frequency === 'Once daily' || formData.frequency === 'Twice daily' || formData.frequency === 'Three times daily') && (
                                         <button type="button" onClick={() => removeTime(index)}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     )}
@@ -373,23 +374,23 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Notes</label>
+                        <label className="block text-sm font-bold text-white mb-2">Notes</label>
                         <textarea value={formData.notes}
                             onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                             placeholder="Additional instructions..."
                             rows={3}
-                            className="w-full px-4 py-3 rounded-xl border border-border bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-blue/50 transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl bg-[#4A4042] border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-terracotta/50 transition-all resize-none"
                         />
                     </div>
                 </div>
 
-                <div className="sticky bottom-0 bg-soft-blush border-t border-slate-blue/20 p-4 flex gap-3">
+                <div className="sticky bottom-0 bg-[#3C3434] border-t border-white/10 p-6 flex gap-3 z-10">
                     <button onClick={onClose}
-                        className="flex-1 px-6 py-3 rounded-xl border border-border bg-white text-gray-900 font-medium hover:bg-dusty-rose transition-colors">
+                        className="flex-1 px-6 py-3 rounded-xl border border-white/10 bg-[#4A4042] text-white font-bold hover:bg-white/5 transition-colors">
                         Cancel
                     </button>
                     <button onClick={handleSave} disabled={loading}
-                        className="flex-1 px-6 py-3 rounded-xl bg-slate-blue text-white font-medium hover:bg-deep-slate transition-colors disabled:opacity-50">
+                        className="flex-1 px-6 py-3 rounded-xl bg-slate-blue text-white font-bold hover:bg-slate-blue/90 transition-colors disabled:opacity-50 shadow-lg shadow-slate-blue/20">
                         {loading ? 'Saving...' : editingTask ? 'Update' : 'Save'}
                     </button>
                 </div>
