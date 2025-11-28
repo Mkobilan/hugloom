@@ -48,15 +48,21 @@ export function InstallPrompt() {
         return null;
     }
 
-    // Only show if we have a prompt (Android) or it's iOS (manual instructions)
-    if (!deferredPrompt && !isIOS) {
-        return null;
-    }
+    const handleGenericInstall = () => {
+        if (deferredPrompt) {
+            handleInstallClick();
+        } else if (isIOS) {
+            handleInstallClick();
+        } else {
+            // Generic instructions for browsers that don't support beforeinstallprompt
+            alert("To install this app:\n\n• On Android Chrome: Look for 'Install App' or 'Add to Home Screen' in the browser menu\n• On iOS Safari: Tap the Share button and select 'Add to Home Screen'\n• On Desktop: Look for the install icon in your browser's address bar");
+        }
+    };
 
     return (
         <div className="w-full flex justify-center my-4">
             <button
-                onClick={handleInstallClick}
+                onClick={handleGenericInstall}
                 className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
             >
                 <Download className="w-4 h-4" />
