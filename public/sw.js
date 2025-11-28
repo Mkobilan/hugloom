@@ -29,15 +29,23 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
+    // Skip caching for chrome-extension and other non-http(s) requests
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Clone the response before caching
-                const responseToCache = response.clone();
+                // Only cache successful responses (status 200)
+                // Skip partial responses (206) and redirects
+                if (response.status === 200) {
+                    const responseToCache = response.clone();
 
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseToCache);
-                });
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                }
 
                 return response;
             })
