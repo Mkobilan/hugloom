@@ -83,6 +83,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|api/auth/).*)',
+    // Exclude Service Worker, manifest, and static assets from middleware
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|api/auth/).*)',
   ],
 }
