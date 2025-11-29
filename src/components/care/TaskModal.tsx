@@ -149,7 +149,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
 
                     const eventData: any = {
                         title: formData.name.trim(),
-                        description: `${formData.frequency ? formData.frequency + ' - ' : ''}${formData.notes.trim()}`,
+                        description: formData.notes.trim(),
                         task_category: formData.taskCategory,
                         event_type: formData.taskCategory,
                         recurrence_pattern: recurrencePattern,
@@ -183,7 +183,7 @@ export const TaskModal = ({ isOpen, onClose, onSave, taskType, editingTask, circ
 
                         const eventData: any = {
                             title: formData.name.trim(),
-                            description: `${formData.frequency ? formData.frequency + ' - ' : ''}${formData.notes.trim()}`,
+                            description: formData.notes.trim(),
                             task_category: formData.taskCategory,
                             event_type: formData.taskCategory,
                             recurrence_pattern: recurrencePattern,

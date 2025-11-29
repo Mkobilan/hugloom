@@ -79,6 +79,9 @@ export const useComments = (postId: string) => {
                 }
             });
 
+            // Sort roots by created_at descending (newest first)
+            roots.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
             setComments(data as Comment[]);
             setRootComments(roots);
         } catch (error) {
