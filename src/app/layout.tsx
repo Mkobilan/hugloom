@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     "Caregiver App", "Elder Care Support", "Caregiver Support Group", "Family Caregiver App", "Dementia Care App",
     "Care Calendar", "Medication Tracker", "Caregiver Forum", "Elderly Care", "Care Coordination"
   ],
+  verification: {
+    google: 'wnwX0v0OGT7E25CuYA6r3_NjExggVU9PFITJXnpMp8U',
+  },
   openGraph: {
     title: 'HugLoom - Caregiver Support & Community',
     description: "Join HugLoom, the supportive community for caregivers. Manage care schedules, track medications, and find emotional support.",
