@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/api/', '/settings/', '/profile/'],
         },
-        sitemap: 'https://hugloom.com/sitemap.xml',
+        sitemap: 'https://hugloom.vercel.app/sitemap.xml',
     }
 }
