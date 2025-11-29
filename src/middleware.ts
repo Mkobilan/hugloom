@@ -67,7 +67,9 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth/forgot-password') &&
     !request.nextUrl.pathname.startsWith('/auth/reset-password') &&
     !request.nextUrl.pathname.startsWith('/post/') &&
-    !request.nextUrl.pathname.startsWith('/u/')) {
+    !request.nextUrl.pathname.startsWith('/u/') &&
+    !request.nextUrl.pathname.startsWith('/sitemap.xml') &&
+    !request.nextUrl.pathname.startsWith('/robots.txt')) {
     return NextResponse.redirect(new URL('/signup', request.url))
   }
 
