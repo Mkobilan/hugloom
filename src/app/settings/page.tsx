@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor, Bell, RefreshCw } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor, Bell, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAppearance } from '@/components/providers/AppearanceProvider';
 import { updateNotificationSettings, getNotificationSettings } from '@/lib/notifications';
@@ -48,6 +48,11 @@ export default function SettingsPage() {
     const [checkingForUpdates, setCheckingForUpdates] = useState(false);
     const [updateAvailable, setUpdateAvailable] = useState(false);
     const [updateMessage, setUpdateMessage] = useState('');
+
+    // Delete account state
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
+    const [deletingAccount, setDeletingAccount] = useState(false);
 
     useEffect(() => {
         loadUserData();
@@ -226,6 +231,33 @@ export default function SettingsPage() {
             setUpdateMessage('Error checking for updates');
         } finally {
             setCheckingForUpdates(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmText !== 'DELETE') {
+            setMessage({ type: 'error', text: 'Please type DELETE to confirm' });
+            return;
+        }
+
+        setDeletingAccount(true);
+        try {
+            const { error } = await supabase.rpc('delete_own_account');
+
+            if (error) {
+                console.error('Error deleting account:', error);
+                setMessage({ type: 'error', text: 'Failed to delete account: ' + error.message });
+                setDeletingAccount(false);
+                return;
+            }
+
+            // Sign out and redirect
+            await supabase.auth.signOut();
+            router.push('/login');
+        } catch (error: any) {
+            console.error('Error deleting account:', error);
+            setMessage({ type: 'error', text: 'An unexpected error occurred' });
+            setDeletingAccount(false);
         }
     };
 
@@ -771,6 +803,114 @@ export default function SettingsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Account Section */}
+            <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-red-500/20 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-red-500/10 rounded-full">
+                        <Trash2 className="w-5 h-5 text-red-500" />
+                    </div>
+                    <h2 className="text-lg font-bold text-white">Danger Zone</h2>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="p-4 bg-red-500/5 rounded-xl border border-red-500/20">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <h3 className="font-medium text-white mb-1">Delete Account</h3>
+                                <p className="text-sm text-white/70 mb-3">
+                                    Permanently delete your account and all associated data. This action cannot be undone.
+                                </p>
+                                <button
+                                    onClick={() => setShowDeleteModal(true)}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors text-sm"
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Delete Account Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#3C3434] rounded-2xl border border-red-500/20 max-w-md w-full p-6 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-red-500/10 rounded-full">
+                                <AlertTriangle className="w-6 h-6 text-red-500" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">Delete Account?</h2>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20">
+                                <p className="text-sm text-white/90 font-medium mb-2">
+                                    This will permanently delete:
+                                </p>
+                                <ul className="text-sm text-white/70 space-y-1 list-disc list-inside">
+                                    <li>Your profile and account information</li>
+                                    <li>All your posts and comments</li>
+                                    <li>Your messages and conversations</li>
+                                    <li>Care circles and tasks</li>
+                                    <li>All other associated data</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white mb-2">
+                                    Type <span className="font-bold text-red-500">DELETE</span> to confirm
+                                </label>
+                                <input
+                                    type="text"
+                                    value={deleteConfirmText}
+                                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border border-red-500/20 bg-[#4A4042] text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all placeholder:text-white/30"
+                                    placeholder="Type DELETE"
+                                    autoFocus
+                                />
+                            </div>
+
+                            {message.text && message.type === 'error' && (
+                                <div className="p-3 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                    <p className="text-sm">{message.text}</p>
+                                </div>
+                            )}
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setDeleteConfirmText('');
+                                        setMessage({ type: '', text: '' });
+                                    }}
+                                    disabled={deletingAccount}
+                                    className="flex-1 px-4 py-3 bg-[#4A4042] text-white rounded-xl font-medium hover:bg-[#5A5052] transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    disabled={deletingAccount || deleteConfirmText !== 'DELETE'}
+                                    className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {deletingAccount ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        'Delete Account'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }
