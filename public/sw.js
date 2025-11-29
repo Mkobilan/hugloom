@@ -1,11 +1,23 @@
 // Service Worker for HugLoom PWA
-const CACHE_NAME = 'hugloom-v1';
+const CACHE_VERSION = '1.0.0';
+const CACHE_NAME = `hugloom-v${CACHE_VERSION}`;
 
 // Install event - activate immediately
 self.addEventListener('install', (event) => {
-    console.log('Service Worker installing...');
+    console.log('Service Worker installing...', CACHE_VERSION);
     // Skip waiting to activate immediately
     self.skipWaiting();
+});
+
+// Message handler for update requests
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('Service Worker: Received SKIP_WAITING message');
+        self.skipWaiting();
+    }
+    if (event.data && event.data.type === 'GET_VERSION') {
+        event.ports[0].postMessage({ version: CACHE_VERSION });
+    }
 });
 
 // Activate event - take control immediately

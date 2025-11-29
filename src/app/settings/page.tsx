@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor, Bell } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moon, Monitor, Bell, RefreshCw } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAppearance } from '@/components/providers/AppearanceProvider';
 import { updateNotificationSettings, getNotificationSettings } from '@/lib/notifications';
@@ -29,6 +29,11 @@ export default function SettingsPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [changingPassword, setChangingPassword] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+
+    // Update checker state
+    const [checkingForUpdates, setCheckingForUpdates] = useState(false);
+    const [updateAvailable, setUpdateAvailable] = useState(false);
+    const [updateMessage, setUpdateMessage] = useState('');
 
     useEffect(() => {
         loadUserData();
@@ -144,6 +149,69 @@ export default function SettingsPage() {
             setMessage({ type: 'error', text: 'An unexpected error occurred' });
         } finally {
             setChangingPassword(false);
+        }
+    };
+
+    const checkForUpdates = async () => {
+        setCheckingForUpdates(true);
+        setUpdateMessage('Checking for updates...');
+        setUpdateAvailable(false);
+
+        try {
+            // Check if service worker is supported
+            if (!('serviceWorker' in navigator)) {
+                setUpdateMessage('Service Worker not supported in this browser');
+                setCheckingForUpdates(false);
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.getRegistration();
+
+            if (!registration) {
+                setUpdateMessage('No service worker registered');
+                setCheckingForUpdates(false);
+                return;
+            }
+
+            // Check for updates
+            await registration.update();
+
+            // Wait a bit for the update check to complete
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Check if there's a waiting service worker
+            if (registration.waiting) {
+                setUpdateAvailable(true);
+                setUpdateMessage('Update available! Installing...');
+
+                // Tell the waiting service worker to skip waiting
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+                // Listen for the controlling service worker to change
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    // Reload the page to use the new service worker
+                    window.location.reload();
+                });
+            } else if (registration.installing) {
+                setUpdateMessage('Update is installing...');
+                // Wait for it to finish installing
+                registration.installing.addEventListener('statechange', (e: any) => {
+                    if (e.target.state === 'installed') {
+                        setUpdateAvailable(true);
+                        setUpdateMessage('Update available! Click again to install.');
+                    }
+                });
+            } else {
+                setUpdateMessage('You\'re running the latest version!');
+                setTimeout(() => {
+                    setUpdateMessage('');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error checking for updates:', error);
+            setUpdateMessage('Error checking for updates');
+        } finally {
+            setCheckingForUpdates(false);
         }
     };
 
@@ -608,6 +676,64 @@ export default function SettingsPage() {
                             </div>
                         </div>
 
+                    </div>
+                </div>
+
+                {/* App Updates Section */}
+                <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <RefreshCw className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">App Updates</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <p className="text-sm text-white/70">
+                            Check for the latest version of HugLoom. Updates include new features, improvements, and bug fixes.
+                        </p>
+
+                        {/* Update Status Message */}
+                        {updateMessage && (
+                            <div className={`p-4 rounded-xl flex items-start gap-3 ${updateAvailable
+                                    ? 'bg-terracotta/10 text-terracotta border border-terracotta/20'
+                                    : updateMessage.includes('Error')
+                                        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                        : 'bg-sage/10 text-sage border border-sage/20'
+                                }`}>
+                                {updateAvailable ? (
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                ) : updateMessage.includes('Error') ? (
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                ) : (
+                                    <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                )}
+                                <p className="text-sm font-medium">{updateMessage}</p>
+                            </div>
+                        )}
+
+                        {/* Check for Updates Button */}
+                        <button
+                            onClick={checkForUpdates}
+                            disabled={checkingForUpdates}
+                            className="w-full py-3 bg-terracotta text-white rounded-xl font-medium hover:bg-terracotta/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-terracotta/20"
+                        >
+                            {checkingForUpdates ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Checking for Updates...
+                                </>
+                            ) : (
+                                <>
+                                    <RefreshCw className="w-4 h-4" />
+                                    Check for Updates
+                                </>
+                            )}
+                        </button>
+
+                        <p className="text-xs text-white/50 text-center">
+                            Current version: 1.0.0
+                        </p>
                     </div>
                 </div>
             </div>
