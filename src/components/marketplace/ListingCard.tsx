@@ -33,7 +33,7 @@ export function ListingCard({ item }: ListingCardProps) {
                     )}
                 </div>
                 <h3 className="font-bold text-white text-sm line-clamp-2 mb-1">{item.title}</h3>
-                <p className="text-terracotta font-bold text-lg mb-2">${item.price}</p>
+                <p className="text-terracotta font-bold text-lg mb-2">${Number(item.price).toFixed(2)}</p>
                 <div className="mt-auto flex items-center gap-1 text-xs text-gray-400">
                     <MapPin className="w-3 h-3" />
                     <span className="truncate">{item.location || 'Local'}</span>

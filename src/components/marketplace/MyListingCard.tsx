@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { MapPin, ShoppingBag, Trash2 } from 'lucide-react'
+import { MapPin, ShoppingBag, Trash2, Edit2 } from 'lucide-react'
 import { useState } from 'react'
 import { deleteListing } from '@/app/marketplace/actions'
 import { useRouter } from 'next/navigation'
@@ -62,21 +62,30 @@ export function MyListingCard({ item }: MyListingCardProps) {
                     )}
                 </div>
                 <h3 className="font-bold text-white text-sm line-clamp-2 mb-1">{item.title}</h3>
-                <p className="text-terracotta font-bold text-lg mb-2">${item.price}</p>
+                <p className="text-terracotta font-bold text-lg mb-2">${Number(item.price).toFixed(2)}</p>
                 <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
                     <MapPin className="w-3 h-3" />
                     <span className="truncate">{item.location || 'Local'}</span>
                 </div>
             </Link>
 
-            <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="w-full mt-auto flex items-center justify-center gap-2 px-3 py-2 bg-red-500/10 text-red-400 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-colors disabled:opacity-50"
-            >
-                <Trash2 className="w-4 h-4" />
-                {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
+            <div className="mt-auto grid grid-cols-2 gap-2">
+                <Link
+                    href={`/marketplace/edit/${item.id}`}
+                    className="flex items-center justify-center gap-2 px-3 py-2 bg-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-colors"
+                >
+                    <Edit2 className="w-4 h-4" />
+                    Edit
+                </Link>
+                <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="flex items-center justify-center gap-2 px-3 py-2 bg-red-500/10 text-red-400 rounded-xl font-bold text-sm hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                >
+                    <Trash2 className="w-4 h-4" />
+                    {isDeleting ? '...' : 'Delete'}
+                </button>
+            </div>
         </div>
     )
 }

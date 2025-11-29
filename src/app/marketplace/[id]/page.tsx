@@ -64,7 +64,7 @@ export default async function ListingDetailsPage({
                     {/* Details */}
                     <div className="bg-white/5 p-6 rounded-2xl shadow-sm border border-terracotta/10 space-y-6">
                         <div>
-                            <p className="text-3xl font-bold text-terracotta mb-2">${item.price}</p>
+                            <p className="text-3xl font-bold text-terracotta mb-2">${Number(item.price).toFixed(2)}</p>
                             <h2 className="text-xl font-bold text-white mb-4">{item.title}</h2>
 
                             <div className="flex flex-wrap gap-3 mb-6">

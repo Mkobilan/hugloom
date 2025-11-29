@@ -1,6 +1,6 @@
 "use client";
 import { format } from 'date-fns';
-import { X } from 'lucide-react';
+import { X, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Task {
@@ -18,9 +18,11 @@ interface DayTasksModalProps {
     onClose: () => void;
     selectedDay: Date | null;
     tasks: Task[];
+    onEdit: (task: Task) => void;
+    onDelete: (task: Task) => void;
 }
 
-export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksModalProps) => {
+export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks, onEdit, onDelete }: DayTasksModalProps) => {
     if (!isOpen || !selectedDay) return null;
 
     const getEventColor = (category: string) => {
@@ -112,6 +114,24 @@ export const DayTasksModal = ({ isOpen, onClose, selectedDay, tasks }: DayTasksM
                                                     {task.description}
                                                 </p>
                                             )}
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => onEdit(task)}
+                                                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white"
+                                                title="Edit task"
+                                            >
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => onDelete(task)}
+                                                className="p-2 hover:bg-red-500/10 rounded-full transition-colors text-white/60 hover:text-red-400"
+                                                title="Delete task"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

@@ -34,7 +34,7 @@ export default async function MarketplacePage({
             <div className="max-w-2xl mx-auto">
                 <div className="bg-mustard/10 p-4 rounded-xl mb-6 border border-mustard/20">
                     <p className="text-xs text-mustard font-bold text-center">
-                        ⚠️ ElderCare Connect is not liable for transactions. Verify condition/seller; consult pros for medical fit.
+                        ⚠️ HugLoom is not liable for transactions. Verify condition/seller; consult pros for medical fit.
                     </p>
                 </div>
 

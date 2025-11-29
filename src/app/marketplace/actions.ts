@@ -78,6 +78,44 @@ export async function deleteListing(listingId: string) {
         throw error
     }
 
+    revalidatePath('/marketplace/my-listings')
+}
+
+export async function updateListing(listingId: string, data: CreateListingData) {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Unauthorized')
+
+    // Verify ownership
+    const { data: listing } = await supabase
+        .from('marketplace_items')
+        .select('seller_id')
+        .eq('id', listingId)
+        .single()
+
+    if (!listing) throw new Error('Listing not found')
+    if (listing.seller_id !== user.id) throw new Error('Unauthorized')
+
+    const { error } = await supabase
+        .from('marketplace_items')
+        .update({
+            title: data.title,
+            description: data.description,
+            price: data.price,
+            condition: data.condition,
+            location: data.location,
+            delivery_options: data.delivery_options,
+            image_urls: data.image_urls,
+        })
+        .eq('id', listingId)
+
+    if (error) {
+        console.error('Error updating listing:', error)
+        throw error
+    }
+
     revalidatePath('/marketplace')
     revalidatePath('/marketplace/my-listings')
+    revalidatePath(`/marketplace/${listingId}`)
 }

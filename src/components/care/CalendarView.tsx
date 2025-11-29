@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight, Edit2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { TaskModal } from './TaskModal';
 import { DayTasksModal } from './DayTasksModal';
@@ -16,6 +17,7 @@ interface CalendarViewProps {
 
 export const CalendarView = ({ events, medications, circleId }: CalendarViewProps) => {
     const router = useRouter();
+    const supabase = createClient();
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
     useEffect(() => {
@@ -119,6 +121,42 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
             setTaskType(task.task_category || 'task');
         }
         setIsModalOpen(true);
+    };
+
+    const handleDeleteTask = async (task: any) => {
+        if (!confirm('Are you sure you want to delete this task?')) return;
+
+        try {
+            const idToDelete = task.originalData ? task.originalData.id : task.id;
+
+            if (task.isMedication) {
+                const { error } = await supabase
+                    .from('medications')
+                    .delete()
+                    .eq('id', idToDelete);
+                if (error) throw error;
+            } else {
+                // For events (recurring or single), we delete the main record
+                const { error } = await supabase
+                    .from('calendar_events')
+                    .delete()
+                    .eq('id', idToDelete);
+                if (error) throw error;
+            }
+
+            // Refresh data
+            router.refresh();
+
+            // Close day modal if it becomes empty (optional, but good UX)
+            // For now, we'll just let the parent re-render handle it
+            // But we should update the local state for immediate feedback if possible
+            // Or just close the modal to be safe/simple
+            setIsDayModalOpen(false);
+
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            alert('Failed to delete task');
+        }
     };
 
     const handleMouseEnter = (e: React.MouseEvent, task: any) => {
@@ -255,6 +293,11 @@ export const CalendarView = ({ events, medications, circleId }: CalendarViewProp
                 onClose={() => setIsDayModalOpen(false)}
                 selectedDay={selectedDay}
                 tasks={selectedDayTasks}
+                onEdit={(task) => {
+                    setIsDayModalOpen(false);
+                    handleEdit(task);
+                }}
+                onDelete={handleDeleteTask}
             />
         </div>
     );

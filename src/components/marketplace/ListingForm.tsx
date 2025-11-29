@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, X, Loader2 } from 'lucide-react'
-import { createListing } from '@/app/marketplace/actions'
+import { createListing, updateListing } from '@/app/marketplace/actions'
 
 const CONDITIONS = ['New', 'Like New', 'Used - Good', 'Used - Fair']
 const DELIVERY_OPTIONS = [
@@ -13,12 +13,26 @@ const DELIVERY_OPTIONS = [
     { id: 'shipping', label: 'Shipping' },
 ]
 
-export function ListingForm() {
+interface ListingFormProps {
+    initialData?: {
+        id: string
+        title: string
+        description: string
+        price: number
+        condition: string
+        location: string | null
+        delivery_options: string[] | null
+        image_urls: string[] | null
+    }
+}
+
+export function ListingForm({ initialData }: ListingFormProps) {
     const router = useRouter()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [images, setImages] = useState<File[]>([])
-    const [previews, setPreviews] = useState<string[]>([])
+    // Initialize previews from initialData images or empty array
+    const [previews, setPreviews] = useState<string[]>(initialData?.image_urls || [])
     const [error, setError] = useState<string | null>(null)
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,14 +51,52 @@ export function ListingForm() {
     }
 
     const removeImage = (index: number) => {
-        const newImages = [...images]
-        newImages.splice(index, 1)
-        setImages(newImages)
+        // If removing an existing image (from initialData), we need to handle it differently
+        // But for simplicity, we'll just remove it from previews and not include it in the final submission
+        // Note: This logic assumes new images are appended to the end. 
+        // A more robust approach would be to track existing vs new images separately.
 
-        const newPreviews = [...previews]
-        URL.revokeObjectURL(newPreviews[index])
-        newPreviews.splice(index, 1)
-        setPreviews(newPreviews)
+        // Current simple approach:
+        // If index < initialData.image_urls.length (and we haven't removed any before), it's an existing image.
+        // But since we mix them in previews, let's just rely on previews for display 
+        // and reconstruct the final list.
+
+        // Actually, we need to know which are existing URLs and which are new Files.
+        // Let's split the logic in handleSubmit.
+        // For now, just update previews and images state.
+
+        // If we remove an image that was a File:
+        // We need to find which File it corresponds to.
+        // This is tricky with a single array if we mix types.
+
+        // Let's refine: 
+        // previews contains ALL images (existing URLs + new File blobs).
+        // images contains ONLY new Files.
+
+        // If we remove an image at index `i`:
+        // If `i` < (previews.length - images.length), it's an existing image.
+        // If `i` >= (previews.length - images.length), it's a new image.
+
+        const numExisting = previews.length - images.length
+
+        if (index < numExisting) {
+            // Removing an existing image
+            const newPreviews = [...previews]
+            newPreviews.splice(index, 1)
+            setPreviews(newPreviews)
+        } else {
+            // Removing a new image
+            const newImageIndex = index - numExisting
+
+            const newImages = [...images]
+            newImages.splice(newImageIndex, 1)
+            setImages(newImages)
+
+            const newPreviews = [...previews]
+            URL.revokeObjectURL(newPreviews[index])
+            newPreviews.splice(index, 1)
+            setPreviews(newPreviews)
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,8 +108,8 @@ export function ListingForm() {
             const formData = new FormData(e.currentTarget)
             const supabase = createClient()
 
-            // Upload images
-            const imageUrls: string[] = []
+            // Upload new images
+            const newImageUrls: string[] = []
             for (const file of images) {
                 const fileExt = file.name.split('.').pop()
                 const fileName = `${Math.random()}.${fileExt}`
@@ -71,8 +123,13 @@ export function ListingForm() {
                     .from('marketplace-images')
                     .getPublicUrl(fileName)
 
-                imageUrls.push(publicUrl)
+                newImageUrls.push(publicUrl)
             }
+
+            // Combine existing images (that weren't removed) with new images
+            // We can filter `previews` to find strings that are not blob: URLs (meaning they are existing Supabase URLs)
+            const existingImageUrls = previews.filter(url => !url.startsWith('blob:'))
+            const finalImageUrls = [...existingImageUrls, ...newImageUrls]
 
             // Prepare data for server action
             const listingData = {
@@ -84,16 +141,22 @@ export function ListingForm() {
                 delivery_options: DELIVERY_OPTIONS
                     .filter(opt => formData.get(opt.id) === 'on')
                     .map(opt => opt.id),
-                image_urls: imageUrls
+                image_urls: finalImageUrls
             }
 
-            await createListing(listingData)
-            router.push('/marketplace')
+            if (initialData) {
+                await updateListing(initialData.id, listingData)
+                router.push('/marketplace/my-listings') // Redirect to my listings after edit
+            } else {
+                await createListing(listingData)
+                router.push('/marketplace')
+            }
+
             router.refresh()
 
         } catch (err) {
             console.error(err)
-            setError('Failed to create listing. Please try again.')
+            setError(initialData ? 'Failed to update listing.' : 'Failed to create listing. Please try again.')
         } finally {
             setIsSubmitting(false)
         }
@@ -151,6 +214,7 @@ export function ListingForm() {
                     type="text"
                     name="title"
                     required
+                    defaultValue={initialData?.title}
                     placeholder="What are you selling?"
                     className="w-full px-4 py-2 rounded-xl border-none bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20"
                 />
@@ -165,6 +229,7 @@ export function ListingForm() {
                     required
                     min="0"
                     step="0.01"
+                    defaultValue={initialData?.price}
                     placeholder="0.00"
                     className="w-full px-4 py-2 rounded-xl border-none bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20"
                 />
@@ -176,6 +241,7 @@ export function ListingForm() {
                 <select
                     name="condition"
                     required
+                    defaultValue={initialData?.condition}
                     className="w-full px-4 py-2 rounded-xl border-none bg-white text-black focus:outline-none focus:ring-2 focus:ring-terracotta/20"
                 >
                     <option value="">Select condition</option>
@@ -191,6 +257,7 @@ export function ListingForm() {
                 <textarea
                     name="description"
                     rows={4}
+                    defaultValue={initialData?.description}
                     placeholder="Describe your item..."
                     className="w-full px-4 py-2 rounded-xl border-none bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20 resize-none"
                 />
@@ -203,6 +270,7 @@ export function ListingForm() {
                     type="text"
                     name="location"
                     required
+                    defaultValue={initialData?.location || ''}
                     placeholder="City, State, or Zip"
                     className="w-full px-4 py-2 rounded-xl border-none bg-white text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20"
                 />
@@ -217,6 +285,7 @@ export function ListingForm() {
                             <input
                                 type="checkbox"
                                 name={opt.id}
+                                defaultChecked={initialData?.delivery_options?.includes(opt.id)}
                                 className="rounded border-gray-300 text-terracotta focus:ring-terracotta"
                             />
                             <span className="text-sm text-white">{opt.label}</span>
@@ -233,10 +302,10 @@ export function ListingForm() {
                 {isSubmitting ? (
                     <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Creating Listing...
+                        {initialData ? 'Updating...' : 'Creating Listing...'}
                     </>
                 ) : (
-                    'Post Listing'
+                    initialData ? 'Update Listing' : 'Post Listing'
                 )}
             </button>
         </form>
