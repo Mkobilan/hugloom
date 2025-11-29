@@ -107,9 +107,9 @@ export default function ProfilePage() {
 
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
 
-            // Redirect back to more page after a short delay
+            // Redirect back to public profile page after a short delay
             setTimeout(() => {
-                router.push('/more');
+                router.push(`/u/${profile.username}`);
             }, 1500);
         } catch (error) {
             console.error('Error saving profile:', error);

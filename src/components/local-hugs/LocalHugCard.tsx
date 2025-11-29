@@ -87,7 +87,7 @@ export const LocalHugCard = ({ hug, currentUserId, onDelete, onUpdate }: LocalHu
                             {hug.services.join(', ')}
                         </h3>
                         {isOwner && (
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
