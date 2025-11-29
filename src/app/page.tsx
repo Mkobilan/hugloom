@@ -16,9 +16,13 @@ export default async function Home() {
   // Fetch user profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, full_name')
+    .select('username, full_name, onboarding_completed')
     .eq('id', session.user.id)
     .single();
+
+  if (!profile?.onboarding_completed) {
+    redirect('/onboarding');
+  }
 
   const username = profile?.username || profile?.full_name || 'there';
 
