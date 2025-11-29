@@ -8,6 +8,20 @@ import { Lock, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, Palette, Sun, Moo
 import { useTheme } from 'next-themes';
 import { useAppearance } from '@/components/providers/AppearanceProvider';
 import { updateNotificationSettings, getNotificationSettings } from '@/lib/notifications';
+import { useTutorial } from '@/components/providers/TutorialProvider';
+
+function TutorialButton() {
+    const { startTutorial } = useTutorial();
+
+    return (
+        <button
+            onClick={startTutorial}
+            className="px-4 py-2 bg-terracotta text-white rounded-lg text-sm font-medium hover:bg-terracotta/90 transition-colors"
+        >
+            Take Tour
+        </button>
+    );
+}
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -696,10 +710,10 @@ export default function SettingsPage() {
                         {/* Update Status Message */}
                         {updateMessage && (
                             <div className={`p-4 rounded-xl flex items-start gap-3 ${updateAvailable
-                                    ? 'bg-terracotta/10 text-terracotta border border-terracotta/20'
-                                    : updateMessage.includes('Error')
-                                        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                        : 'bg-sage/10 text-sage border border-sage/20'
+                                ? 'bg-terracotta/10 text-terracotta border border-terracotta/20'
+                                : updateMessage.includes('Error')
+                                    ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                    : 'bg-sage/10 text-sage border border-sage/20'
                                 }`}>
                                 {updateAvailable ? (
                                     <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -734,6 +748,26 @@ export default function SettingsPage() {
                         <p className="text-xs text-white/50 text-center">
                             Current version: 1.0.0
                         </p>
+                    </div>
+                </div>
+
+                {/* Help & Support Section */}
+                <div className="mt-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <AlertCircle className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Help & Support</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-[#4A4042] rounded-xl border border-white/5">
+                            <div>
+                                <h3 className="font-medium text-white">App Tour</h3>
+                                <p className="text-xs text-white/60">Take a quick tour of Hugloom's features</p>
+                            </div>
+                            <TutorialButton />
+                        </div>
                     </div>
                 </div>
             </div>
