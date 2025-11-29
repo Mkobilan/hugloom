@@ -127,6 +127,32 @@ export default function LoginPage() {
                     </p>
                 </div>
             </div>
+
+            {/* SEO Content Section */}
+            <div className="mt-12 max-w-2xl text-center space-y-8 pb-8">
+                <section>
+                    <h2 className="text-xl font-heading font-bold text-terracotta mb-2">The #1 Caregiver Support App</h2>
+                    <p className="text-muted-foreground">
+                        HugLoom is the ultimate <strong>family caregiver app</strong> designed to simplify <strong>elder care support</strong>.
+                        Join our <strong>caregiver support group</strong> to connect with others who understand your journey.
+                    </p>
+                </section>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div className="bg-card/50 p-4 rounded-xl border border-border/50">
+                        <h3 className="font-bold text-foreground mb-1">Care Calendar & Coordination</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Manage appointments and coordinate with family using our shared <strong>care calendar</strong>. Perfect for <strong>care coordination with My Care Circle</strong>.
+                        </p>
+                    </div>
+                    <div className="bg-card/50 p-4 rounded-xl border border-border/50">
+                        <h3 className="font-bold text-foreground mb-1">Medication Tracker</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Never miss a dose with our built-in <strong>medication tracker</strong>. Essential for <strong>dementia care</strong> and daily health management.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

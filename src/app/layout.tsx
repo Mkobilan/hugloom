@@ -22,8 +22,27 @@ const kalam = Kalam({
 });
 
 export const metadata: Metadata = {
-  title: "HugLoom - Caregiver Community",
-  description: "A social hub for caregivers.",
+  title: {
+    template: '%s | HugLoom',
+    default: 'HugLoom - Caregiver Support & Community',
+  },
+  description: "Join HugLoom, the supportive community for caregivers. Manage care schedules, track medications, and find emotional support. The 'Facebook for Caregivers'.",
+  keywords: [
+    "Caregiver App", "Elder Care Support", "Caregiver Support Group", "Family Caregiver App", "Dementia Care App",
+    "Care Calendar", "Medication Tracker", "Caregiver Forum", "Elderly Care", "Care Coordination"
+  ],
+  openGraph: {
+    title: 'HugLoom - Caregiver Support & Community',
+    description: "Join HugLoom, the supportive community for caregivers. Manage care schedules, track medications, and find emotional support.",
+    siteName: 'HugLoom',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HugLoom - Caregiver Support & Community',
+    description: "Join HugLoom, the supportive community for caregivers.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

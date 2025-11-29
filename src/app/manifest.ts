@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'HugLoom',
+        name: 'HugLoom - Caregiver Support App',
         short_name: 'HugLoom',
-        description: 'A social hub for caregivers.',
+        description: 'The supportive community for caregivers. Manage care, track meds, and connect with others.',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
