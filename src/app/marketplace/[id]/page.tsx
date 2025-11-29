@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { ArrowLeft, MapPin, Truck, User } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ImageCarousel } from '@/components/marketplace/ImageCarousel'
 
 export default async function ListingDetailsPage({
     params
@@ -40,26 +41,15 @@ export default async function ListingDetailsPage({
 
                 <div className="space-y-6">
                     {/* Image Gallery */}
-                    <div className="bg-white/5 p-4 rounded-2xl shadow-sm border border-terracotta/10">
-                        <div className="aspect-square bg-black/20 rounded-xl overflow-hidden mb-4">
-                            {item.image_urls?.[0] && (
-                                <img
-                                    src={item.image_urls[0]}
-                                    alt={item.title}
-                                    className="w-full h-full object-contain"
-                                />
-                            )}
-                        </div>
-                        {item.image_urls && item.image_urls.length > 1 && (
-                            <div className="grid grid-cols-4 gap-2">
-                                {item.image_urls.map((url: string, i: number) => (
-                                    <div key={i} className="aspect-square rounded-lg overflow-hidden border border-terracotta/10">
-                                        <img src={url} alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                ))}
+                    {item.image_urls && item.image_urls.length > 0 ? (
+                        <ImageCarousel images={item.image_urls} title={item.title} />
+                    ) : (
+                        <div className="bg-white/5 p-4 rounded-2xl shadow-sm border border-terracotta/10">
+                            <div className="aspect-square bg-black/20 rounded-xl flex items-center justify-center">
+                                <p className="text-white/40">No images available</p>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Details */}
                     <div className="bg-white/5 p-6 rounded-2xl shadow-sm border border-terracotta/10 space-y-6">
