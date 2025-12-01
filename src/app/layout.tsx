@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { NotificationListener } from "@/components/notifications/NotificationListener";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
+import { ChunkErrorHandler } from "@/components/ChunkErrorHandler";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -75,6 +76,7 @@ export default function RootLayout({
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
         <AppearanceProvider>
+          <ChunkErrorHandler />
           <ServiceWorkerRegistration />
           <NotificationListener />
           <Toaster position="top-center" />
