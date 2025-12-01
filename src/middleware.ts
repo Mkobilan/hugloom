@@ -61,20 +61,6 @@ export async function middleware(request: NextRequest) {
   // If user is not authenticated and not on login/signup pages, redirect to signup
   // EXCEPT for public routes like post pages, user profiles, and password reset pages
   if (!session &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    !request.nextUrl.pathname.startsWith('/auth/callback') &&
-    !request.nextUrl.pathname.startsWith('/auth/forgot-password') &&
-    !request.nextUrl.pathname.startsWith('/auth/reset-password') &&
-    !request.nextUrl.pathname.startsWith('/post/') &&
-    !request.nextUrl.pathname.startsWith('/u/') &&
-    !request.nextUrl.pathname.startsWith('/sitemap.xml') &&
-    !request.nextUrl.pathname.startsWith('/robots.txt')) {
-    return NextResponse.redirect(new URL('/signup', request.url))
-  }
-
-  // If user is authenticated and tries to access login/signup, redirect to dashboard
-  if (session &&
     (request.nextUrl.pathname === '/login' ||
       request.nextUrl.pathname === '/signup')) {
     return NextResponse.redirect(new URL('/', request.url))
