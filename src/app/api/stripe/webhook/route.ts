@@ -32,11 +32,17 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
         const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
+        console.log('Processing checkout.session.completed');
+        console.log('Session ID:', session.id);
+        console.log('Metadata:', session.metadata);
+        console.log('Subscription ID:', subscription.id);
+
         if (!session?.metadata?.userId) {
+            console.error('Error: User id is required in metadata');
             return new NextResponse('User id is required', { status: 400 });
         }
 
-        await supabaseAdmin
+        const { error } = await supabaseAdmin
             .from('profiles')
             .update({
                 is_subscribed: true,
@@ -45,6 +51,13 @@ export async function POST(req: Request) {
                 onboarding_completed: true,
             })
             .eq('id', session.metadata.userId);
+
+        if (error) {
+            console.error('Supabase update error:', error);
+            return new NextResponse(`Supabase update error: ${error.message}`, { status: 500 });
+        }
+
+        console.log('Successfully updated profile for user:', session.metadata.userId);
     }
 
     if (event.type === 'customer.subscription.deleted') {
