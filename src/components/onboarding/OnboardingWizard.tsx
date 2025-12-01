@@ -15,15 +15,45 @@ type OnboardingData = {
     location?: string
 }
 
-export function OnboardingWizard() {
-    const [step, setStep] = useState(1)
+interface OnboardingWizardProps {
+    initialStep?: number
+}
+
+export function OnboardingWizard({ initialStep = 1 }: OnboardingWizardProps) {
+    const [step, setStep] = useState(initialStep)
     const [data, setData] = useState<OnboardingData>({})
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
-    const handleNext = (stepData: Partial<OnboardingData>) => {
-        setData(prev => ({ ...prev, ...stepData }))
+    const saveData = async (currentData: OnboardingData) => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            await supabase
+                .from('profiles')
+                .update({
+                    role: currentData.role,
+                    location: currentData.location,
+                    full_name: currentData.name,
+                    interests: currentData.needs,
+                })
+                .eq('id', user.id)
+        } catch (error) {
+            console.error('Error saving progress:', error)
+        }
+    }
+
+    const handleNext = async (stepData: Partial<OnboardingData>) => {
+        const newData = { ...data, ...stepData }
+        setData(newData)
+
+        // If moving to Paywall (Step 4), save data first
+        if (step === 3) {
+            await saveData(newData)
+        }
+
         setStep(prev => prev + 1)
     }
 
@@ -32,19 +62,15 @@ export function OnboardingWizard() {
     }
 
     const handleComplete = async () => {
+        // This might not be called if redirected to Stripe, but keeping as fallback
         setIsLoading(true)
         try {
             const { data: { user } } = await supabase.auth.getUser()
-
             if (!user) throw new Error('No user found')
 
             const { error } = await supabase
                 .from('profiles')
                 .update({
-                    role: data.role,
-                    location: data.location,
-                    full_name: data.name, // Update name if they changed it
-                    interests: data.needs, // Store needs as interests JSONB
                     onboarding_completed: true
                 })
                 .eq('id', user.id)
@@ -55,8 +81,7 @@ export function OnboardingWizard() {
             router.push('/')
 
         } catch (error) {
-            console.error('Error saving onboarding data:', error)
-            alert("Something went wrong. Please try again.")
+            console.error('Error completing onboarding:', error)
         } finally {
             setIsLoading(false)
         }

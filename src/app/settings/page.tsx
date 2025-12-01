@@ -299,6 +299,61 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
+                {/* Subscription Section */}
+                <div className="mb-8 p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-terracotta/10 rounded-full">
+                            <CheckCircle className="w-5 h-5 text-terracotta" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Subscription</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-[#4A4042] rounded-xl border border-white/5">
+                            <div>
+                                <h3 className="font-medium text-white">Current Plan</h3>
+                                <p className="text-sm text-white/60">
+                                    {profile?.is_subscribed ? 'Premium Member ($5/mo)' : 'Free Tier'}
+                                </p>
+                            </div>
+                            {profile?.is_subscribed && (
+                                <span className="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded-full border border-green-500/20">
+                                    Active
+                                </span>
+                            )}
+                        </div>
+
+                        {profile?.is_subscribed && (
+                            <div className="pt-2">
+                                <p className="text-sm text-white/60 mb-3">
+                                    To cancel your subscription, please contact support or manage via Stripe.
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        // For now, we can redirect to a support email or show a message.
+                                        // Ideally, we'd use the Stripe Customer Portal.
+                                        // Since we don't have the portal link set up yet, we'll show a message or link to email.
+                                        window.location.href = "mailto:support@hugloom.com?subject=Cancel Subscription";
+                                    }}
+                                    className="text-red-400 hover:text-red-300 text-sm font-medium hover:underline flex items-center gap-2"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Request Cancellation
+                                </button>
+                            </div>
+                        )}
+
+                        {!profile?.is_subscribed && (
+                            <button
+                                onClick={() => router.push('/onboarding')}
+                                className="w-full py-3 bg-terracotta text-white rounded-xl font-medium hover:bg-terracotta/90 transition-colors shadow-lg shadow-terracotta/20"
+                            >
+                                Upgrade to Premium
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {/* Change Password Section */}
                 <div className="p-6 bg-[#3C3434] rounded-2xl border border-terracotta/10 shadow-sm">
                     <div className="flex items-center gap-3 mb-4">
