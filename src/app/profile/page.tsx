@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Camera, Save, Loader2, Upload } from 'lucide-react';
+import { ImageWithRetry } from '@/components/ui/ImageWithRetry';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -222,7 +223,12 @@ export default function ProfilePage() {
                             {uploading ? (
                                 <Loader2 className="w-8 h-8 animate-spin text-terracotta" />
                             ) : profile.avatar_url ? (
-                                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                <ImageWithRetry
+                                    src={profile.avatar_url}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                    fallback={profile.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                                />
                             ) : (
                                 profile.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'
                             )}

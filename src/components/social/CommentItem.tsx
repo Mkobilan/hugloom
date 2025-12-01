@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { CommentInput } from './CommentInput';
 import { ImageModal } from './ImageModal';
 import { ShareModal } from './ShareModal';
+import { ImageWithRetry } from '@/components/ui/ImageWithRetry';
 
 interface CommentItemProps {
     comment: any;
@@ -128,10 +129,11 @@ export const CommentItem = ({
                 <Link href={`/u/${comment.profiles?.username}`} className="flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-sm overflow-hidden">
                         {comment.profiles?.avatar_url ? (
-                            <img
+                            <ImageWithRetry
                                 src={comment.profiles.avatar_url}
                                 alt={comment.profiles.username}
                                 className="w-full h-full object-cover"
+                                fallback={comment.profiles?.username?.[0]?.toUpperCase() || '?'}
                             />
                         ) : (
                             comment.profiles?.username?.[0]?.toUpperCase() || '?'
@@ -192,7 +194,7 @@ export const CommentItem = ({
 
                         {comment.media_url && !isEditing && !isDeleted && (
                             <div className="mt-2 rounded-lg overflow-hidden border border-border/50 max-w-[200px]">
-                                <img
+                                <ImageWithRetry
                                     src={comment.media_url}
                                     alt="Comment attachment"
                                     className="w-full h-auto object-cover cursor-pointer hover:opacity-95"

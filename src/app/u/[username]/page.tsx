@@ -8,6 +8,7 @@ import { ProfileActions } from '@/components/social/ProfileActions'
 import { FollowButton } from '@/components/social/FollowButton'
 import { FollowCounts } from '../../../components/social/FollowCounts'
 import { ChatButton } from '@/components/chat/ChatButton'
+import { ImageWithRetry } from '@/components/ui/ImageWithRetry'
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
     const supabase = await createClient()
@@ -72,10 +73,15 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                         <div className="w-24 h-24 mx-auto rounded-full bg-[#3C3434] p-1 shadow-lg">
                             <div className="w-full h-full rounded-full bg-slate-blue/10 overflow-hidden">
                                 {profile.avatar_url ? (
-                                    <img
+                                    <ImageWithRetry
                                         src={profile.avatar_url}
                                         alt={profile.username}
                                         className="w-full h-full object-cover"
+                                        fallback={
+                                            <div className="w-full h-full flex items-center justify-center text-slate-blue text-3xl font-bold">
+                                                {profile.username?.[0]?.toUpperCase() || '?'}
+                                            </div>
+                                        }
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-slate-blue text-3xl font-bold">
@@ -128,10 +134,15 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                                 <div key={item.id} className="bg-white p-3 rounded-2xl border border-border/50 hover:shadow-md transition-shadow">
                                     <div className="aspect-square rounded-xl bg-cream mb-3 overflow-hidden relative">
                                         {item.image_url ? (
-                                            <img
+                                            <ImageWithRetry
                                                 src={item.image_url}
                                                 alt={item.title}
                                                 className="w-full h-full object-cover"
+                                                fallback={
+                                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                        <ShoppingBag className="w-8 h-8 opacity-20" />
+                                                    </div>
+                                                }
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">

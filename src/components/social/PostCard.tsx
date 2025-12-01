@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ImageModal } from './ImageModal';
 import { ShareModal } from './ShareModal';
 import { CommentSection } from './CommentSection';
+import { ImageWithRetry } from '@/components/ui/ImageWithRetry';
 
 export const PostCard = ({ post }: { post: any }) => {
     const supabase = createClient();
@@ -134,10 +135,11 @@ export const PostCard = ({ post }: { post: any }) => {
                     <Link href={`/u/${post.profiles?.username}`}>
                         <div className="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center text-sage font-bold text-lg overflow-hidden hover:opacity-80 transition-opacity">
                             {post.profiles?.avatar_url ? (
-                                <img
+                                <ImageWithRetry
                                     src={post.profiles.avatar_url}
                                     alt={post.profiles.username || 'User'}
                                     className="w-full h-full object-cover"
+                                    fallback={post.profiles?.username?.[0]?.toUpperCase() || '?'}
                                 />
                             ) : (
                                 post.profiles?.username?.[0]?.toUpperCase() || '?'
@@ -213,7 +215,7 @@ export const PostCard = ({ post }: { post: any }) => {
 
                 {post.media_urls?.length > 0 && (
                     <div className="mb-4 rounded-xl overflow-hidden border border-border/50">
-                        <img
+                        <ImageWithRetry
                             src={post.media_urls[0]}
                             alt="Post content"
                             className="w-full h-auto object-cover max-h-96 cursor-pointer hover:opacity-95 transition-opacity"
