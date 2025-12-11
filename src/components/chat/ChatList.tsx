@@ -96,14 +96,20 @@ export function ChatList({ initialConversations, currentUserId }: ChatListProps)
         <div className="space-y-2">
             {conversations.map((conversation) => {
                 // Find the other participant
-                const otherParticipant = conversation.participants.find(
-                    p => p.user.id !== currentUserId
-                )
                 const myParticipant = conversation.participants.find(
                     p => p.user.id === currentUserId
                 )
 
-                if (!otherParticipant || !myParticipant) return null
+                if (!myParticipant) return null
+
+                // Find the other participant (might be undefined if they left or were deleted)
+                const otherParticipant = conversation.participants.find(
+                    p => p.user.id !== currentUserId
+                )
+
+                const displayName = otherParticipant?.user.full_name || otherParticipant?.user.username || 'Deleted User'
+                const displayAvatar = otherParticipant?.user.avatar_url
+                const displayInitials = (displayName[0] || '?').toUpperCase()
 
                 const isUnread = new Date(conversation.last_message_at) > new Date(myParticipant.last_read_at)
 
@@ -118,15 +124,15 @@ export function ChatList({ initialConversations, currentUserId }: ChatListProps)
                     >
                         <div className="relative">
                             <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
-                                {otherParticipant.user.avatar_url ? (
+                                {displayAvatar ? (
                                     <img
-                                        src={otherParticipant.user.avatar_url}
-                                        alt={otherParticipant.user.username}
+                                        src={displayAvatar}
+                                        alt={displayName}
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold text-lg">
-                                        {otherParticipant.user.username[0].toUpperCase()}
+                                        {displayInitials}
                                     </div>
                                 )}
                             </div>
@@ -136,7 +142,7 @@ export function ChatList({ initialConversations, currentUserId }: ChatListProps)
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-1">
                                 <h3 className={cn("font-bold truncate text-white")}>
-                                    {otherParticipant.user.full_name || otherParticipant.user.username}
+                                    {displayName}
                                 </h3>
                                 <span className={cn("text-xs whitespace-nowrap ml-2", isUnread ? "text-white font-bold" : "text-white/70")}>
                                     {formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: true })}
