@@ -70,7 +70,8 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/u/') &&
     !request.nextUrl.pathname.startsWith('/api/') && // Exclude API routes (including webhooks)
     !request.nextUrl.pathname.startsWith('/sitemap.xml') &&
-    !request.nextUrl.pathname.startsWith('/robots.txt')) {
+    !request.nextUrl.pathname.startsWith('/robots.txt') &&
+    request.nextUrl.pathname !== '/') {
     return NextResponse.redirect(new URL('/signup', request.url))
   }
 

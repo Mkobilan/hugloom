@@ -4,13 +4,14 @@ import { PostCard } from '@/components/social/PostCard';
 import { Greeting } from '@/components/home/Greeting';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { LandingPage } from '@/components/landing/LandingPage';
 
 export default async function Home() {
   const supabase = await createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    redirect('/login');
+    return <LandingPage />;
   }
 
   // Fetch user profile
