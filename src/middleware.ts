@@ -18,10 +18,16 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
+          // Increase Max-Age for better persistence
+          const cookieOptions = {
+            ...options,
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+            path: '/',
+          }
+
           request.cookies.set({
             name,
             value,
-            ...options,
           })
           response = NextResponse.next({
             request: {
@@ -31,14 +37,13 @@ export async function middleware(request: NextRequest) {
           response.cookies.set({
             name,
             value,
-            ...options,
+            ...cookieOptions,
           })
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({
             name,
             value: '',
-            ...options,
           })
           response = NextResponse.next({
             request: {
@@ -49,17 +54,17 @@ export async function middleware(request: NextRequest) {
             name,
             value: '',
             ...options,
+            maxAge: 0,
           })
         },
       },
     }
   )
 
-  // Refresh session if expired - required for Server Components
+  // This will refresh the session if it's expired
   const { data: { session } } = await supabase.auth.getSession()
 
-  // If user is not authenticated and not on login/signup pages, redirect to signup
-  // EXCEPT for public routes like post pages, user profiles, and password reset pages
+  // If user is not authenticated and not on public pages, redirect to login
   if (!session &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/signup') &&
@@ -68,14 +73,14 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth/reset-password') &&
     !request.nextUrl.pathname.startsWith('/post/') &&
     !request.nextUrl.pathname.startsWith('/u/') &&
-    !request.nextUrl.pathname.startsWith('/api/') && // Exclude API routes (including webhooks)
+    !request.nextUrl.pathname.startsWith('/api/') &&
     !request.nextUrl.pathname.startsWith('/sitemap.xml') &&
     !request.nextUrl.pathname.startsWith('/robots.txt') &&
     request.nextUrl.pathname !== '/') {
-    return NextResponse.redirect(new URL('/signup', request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // If user is authenticated and tries to access login/signup, redirect to dashboard
+  // If user is authenticated and tries to access login/signup, redirect to home
   if (session &&
     (request.nextUrl.pathname === '/login' ||
       request.nextUrl.pathname === '/signup')) {
@@ -84,6 +89,7 @@ export async function middleware(request: NextRequest) {
 
   return response
 }
+
 
 export const config = {
   matcher: [

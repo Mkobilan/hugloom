@@ -64,6 +64,7 @@ export const viewport: Viewport = {
 import { Toaster } from 'sonner';
 
 import { AppearanceProvider } from "@/components/providers/AppearanceProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 export default function RootLayout({
   children,
@@ -75,14 +76,17 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${inter.variable} ${kalam.variable} antialiased bg-background text-foreground font-sans`}
       >
-        <AppearanceProvider>
-          <ChunkErrorHandler />
-          <ServiceWorkerRegistration />
-          <NotificationListener />
-          <Toaster position="top-center" />
-          {children}
-        </AppearanceProvider>
+        <AuthProvider>
+          <AppearanceProvider>
+            <ChunkErrorHandler />
+            <ServiceWorkerRegistration />
+            <NotificationListener />
+            <Toaster position="top-center" />
+            {children}
+          </AppearanceProvider>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
